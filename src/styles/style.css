@@ -26,6 +26,8 @@
     --ff-inconsolata:"Inconsolata", monospace;
     --ff-dm-serif-display: "DM Serif Display",
         serif;
+    --ff-anton:"Anton", sans-serif;
+    --ff-dubai:;
     --fs-900: 9.375rem;
     --fs-800: 6.25rem;
     --fs-700: 3.5rem;
@@ -634,7 +636,7 @@ video {
     z-index: 2;
 }
 .heading-text{
-    font-family: var(--ff-dm-serif-display);
+    font-family: var(--ff-anton);
     font-weight: var(--fw-700);
 }
 /* Button hover color inversion */

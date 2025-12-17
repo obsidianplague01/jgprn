@@ -121,59 +121,6 @@ function Footer() {
       <div className="mx-auto max-w-7xl px-6 pt-20 pb-8 sm:pt-24 lg:px-8 lg:pt-32">
         
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          
-          <div className="grid grid-cols-1 gap-8 xl:col-span-2">
-            <div className="md:grid md:grid-cols-3 md:gap-8">
-              <div className="space-y-6">
-                <h3 className="text-sm/6 font-semibold uppercase tracking-[0.15em]">Need Help?</h3>
-                <ul role="list" className="space-y-4">
-                  {navigation.support.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className="text-sm/6 text-gray-600 hover:text-black transition-colors duration-300 block py-1 uppercase tracking-[0.1em]"
-                      >
-                        {item.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div className="space-y-6 mt-6 md:mt-0">
-                <h3 className="text-sm/6 font-semibold uppercase tracking-[0.15em]">JGPNR.NG</h3>
-                <ul role="list" className="space-y-4">
-                  {navigation.company.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className="text-sm/6 text-gray-600 hover:text-black transition-colors duration-300 block py-1 uppercase tracking-[0.1em]"
-                      >
-                        {item.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="space-y-6 mt-6 md:mt-0">
-                <h3 className="text-sm/6 font-semibold uppercase tracking-[0.15em]">Legal</h3>
-                <ul role="list" className="space-y-4">
-                  {navigation.legal.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className="text-sm/6 text-gray-600 hover:text-black transition-colors duration-300 block py-1 uppercase tracking-[0.1em]"
-                      >
-                        {item.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
           {/* Newsletter Section */}
           <div className="mt-10 xl:mt-0 space-y-6 relative">
             <h3 className="text-sm/6 font-semibold uppercase tracking-[0.15em]">SIGN UP BELOW</h3>
@@ -266,6 +213,59 @@ function Footer() {
               </div>
             )}
           </div>
+          <div className="grid grid-cols-1 gap-8 xl:col-span-2">
+            <div className="md:grid md:grid-cols-3 md:gap-8">
+              <div className="space-y-6">
+                <h3 className="text-sm/6 font-semibold uppercase tracking-[0.15em]">Need Help?</h3>
+                <ul role="list" className="space-y-4">
+                  {navigation.support.map((item) => (
+                    <li key={item.name}>
+                      <a
+                        href={item.href}
+                        className="text-sm/6 text-gray-600 hover:text-black transition-colors duration-300 block py-1 uppercase tracking-[0.1em]"
+                      >
+                        {item.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="space-y-6 mt-6 md:mt-0">
+                <h3 className="text-sm/6 font-semibold uppercase tracking-[0.15em]">JGPNR.NG</h3>
+                <ul role="list" className="space-y-4">
+                  {navigation.company.map((item) => (
+                    <li key={item.name}>
+                      <a
+                        href={item.href}
+                        className="text-sm/6 text-gray-600 hover:text-black transition-colors duration-300 block py-1 uppercase tracking-[0.1em]"
+                      >
+                        {item.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-6 mt-6 md:mt-0">
+                <h3 className="text-sm/6 font-semibold uppercase tracking-[0.15em]">Legal</h3>
+                <ul role="list" className="space-y-4">
+                  {navigation.legal.map((item) => (
+                    <li key={item.name}>
+                      <a
+                        href={item.href}
+                        className="text-sm/6 text-gray-600 hover:text-black transition-colors duration-300 block py-1 uppercase tracking-[0.1em]"
+                      >
+                        {item.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          
         </div>
 
         {/* Bottom: Social + Copyright */}

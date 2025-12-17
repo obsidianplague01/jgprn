@@ -1,16 +1,18 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/all';
 
-// Layout Components
-import ResponsiveNavBar from './components/ResponsiveNavbar';
-import Footer from './components/Footer';
+// Components
+import Navbar from './components/Navbar';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import Loader from './components/Loader';
 
 // Pages
-import Home from './pages/Home';
+import LandingPage from './pages/LandingPage';
+import PlayStationPage from './pages/PlayStationPage';
+import CheckoutPage from './pages/CheckoutPage';
 import Contact from './pages/Contact';
 import ComingSoon from './pages/ComingSoon';
 
@@ -18,34 +20,58 @@ gsap.registerPlugin(ScrollTrigger);
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const [cartCount, setCartCount] = useState(0);
+
+  // Update cart count
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      setCartCount(cart.length);
+    };
+
+    updateCartCount();
+    
+    // Listen for storage changes
+    window.addEventListener('storage', updateCartCount);
+    
+    // Custom event for cart updates
+    window.addEventListener('cartUpdated', updateCartCount);
+
+    return () => {
+      window.removeEventListener('storage', updateCartCount);
+      window.removeEventListener('cartUpdated', updateCartCount);
+    };
+  }, []);
 
   return (
     <Router>
-      {/* Cinematic Loader */}
+      {/* Loader */}
       {loading && <Loader onLoadComplete={() => setLoading(false)} />}
 
-      {/* Main Content */}
       {!loading && (
         <>
-          {/* Navigation - Shows on all pages */}
-          <ResponsiveNavBar />
+         
 
-          {/* Page Routes */}
+          {/* Routes */}
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/shop" element={<ComingSoon pageName="Shop" />} />
+            <Route path="/podcast" element={<ComingSoon pageName="Podcast" />} />
+            <Route path="/playstation" element={<PlayStationPage />} />
+            <Route path="/discover" element={<ComingSoon pageName="Discover" />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/cart" element={<CheckoutPage />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/store" element={<ComingSoon pageName="Store" />} />
-            <Route path="/playstation" element={<ComingSoon pageName="PlayStation" />} />
-            <Route path="/coming-soon" element={<ComingSoon pageName="New Features" />} />
-            {/* 404 Fallback */}
             <Route path="*" element={<ComingSoon pageName="Page" />} />
           </Routes>
 
-          {/* Scroll to Top Button - Shows on all pages */}
+          {/* Scroll to Top - Shows on all pages */}
           <ScrollToTopButton />
         </>
       )}
     </Router>
   );
 }
-export default App
+
+export default App;
+

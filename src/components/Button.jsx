@@ -2,14 +2,8 @@ import { useRef } from 'react';
 import gsap from 'gsap';
 
 /**
- * Editorial Fashion Button Component
- * Sharp edges, high contrast, intentional interactions
- * 
- * @param {string} variant - 'primary' | 'secondary' | 'outline'
- * @param {string} size - 'sm' | 'md' | 'lg'
- * @param {function} onClick - Click handler
- * @param {boolean} fullWidth - Expand to full width
- * @param {string} className - Additional classes
+ * Sharp-edged Button with Premium Interactions
+ * Inspired by Apple's micro-interaction design
  */
 export default function Button({ 
   children, 
@@ -19,22 +13,34 @@ export default function Button({
   fullWidth = false,
   className = '',
   disabled = false,
+  type = 'button',
 }) {
   const buttonRef = useRef(null);
   const rippleRef = useRef(null);
+  const glowRef = useRef(null);
 
   const handleMouseEnter = () => {
     if (disabled) return;
     
+    // Subtle scale on hover
     gsap.to(buttonRef.current, {
-      scale: 1.02,
-      duration: 0.3,
+      scale: 1.03,
+      duration: 0.4,
       ease: 'power2.out',
     });
 
+    // Glow effect
+    gsap.to(glowRef.current, {
+      opacity: 1,
+      scale: 1.1,
+      duration: 0.4,
+      ease: 'power2.out',
+    });
+
+    // Background slide
     gsap.to(buttonRef.current.querySelector('.button-bg'), {
       scaleX: 1,
-      duration: 0.4,
+      duration: 0.5,
       ease: 'power3.out',
     });
   };
@@ -44,14 +50,52 @@ export default function Button({
     
     gsap.to(buttonRef.current, {
       scale: 1,
-      duration: 0.3,
+      duration: 0.4,
+      ease: 'power2.out',
+    });
+
+    gsap.to(glowRef.current, {
+      opacity: 0,
+      scale: 1,
+      duration: 0.4,
       ease: 'power2.out',
     });
 
     gsap.to(buttonRef.current.querySelector('.button-bg'), {
       scaleX: 0,
-      duration: 0.4,
+      duration: 0.5,
       ease: 'power3.out',
+    });
+  };
+
+  const handleMouseMove = (e) => {
+    if (disabled) return;
+
+    const button = buttonRef.current;
+    const rect = button.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Subtle tilt effect (Apple style)
+    const xPercent = (x / rect.width - 0.5) * 10;
+    const yPercent = (y / rect.height - 0.5) * 10;
+
+    gsap.to(button, {
+      rotationY: xPercent,
+      rotationX: -yPercent,
+      duration: 0.3,
+      ease: 'power2.out',
+    });
+  };
+
+  const handleMouseLeaveReset = () => {
+    if (disabled) return;
+
+    gsap.to(buttonRef.current, {
+      rotationY: 0,
+      rotationX: 0,
+      duration: 0.5,
+      ease: 'power2.out',
     });
   };
 
@@ -69,20 +113,20 @@ export default function Button({
         left: x,
         top: y,
         scale: 0,
-        opacity: 0.5,
+        opacity: 0.6,
       });
 
       gsap.to(rippleRef.current, {
-        scale: 4,
+        scale: 5,
         opacity: 0,
-        duration: 0.6,
+        duration: 0.8,
         ease: 'power2.out',
       });
     }
 
-    // Button press animation
+    // Press animation
     gsap.to(button, {
-      scale: 0.95,
+      scale: 0.97,
       duration: 0.1,
       yoyo: true,
       repeat: 1,
@@ -94,69 +138,121 @@ export default function Button({
 
   // Variant styles
   const variants = {
-    primary: 'bg-black text-white border-black hover:bg-white hover:text-black',
-    secondary: 'bg-white text-black border-black hover:bg-black hover:text-white',
-    outline: 'bg-transparent text-white border-white hover:bg-white hover:text-black',
+    primary: {
+      bg: 'bg-black',
+      text: 'text-white',
+      border: 'border-black',
+      hoverBg: 'bg-white',
+      hoverText: 'text-black',
+      glow: 'bg-gray-400',
+    },
+    secondary: {
+      bg: 'bg-white',
+      text: 'text-black',
+      border: 'border-black',
+      hoverBg: 'bg-black',
+      hoverText: 'text-white',
+      glow: 'bg-gray-600',
+    },
+    accent: {
+      bg: 'bg-amber-500',
+      text: 'text-black',
+      border: 'border-amber-600',
+      hoverBg: 'bg-amber-600',
+      hoverText: 'text-white',
+      glow: 'bg-amber-300',
+    },
+    outline: {
+      bg: 'bg-transparent',
+      text: 'text-white',
+      border: 'border-white',
+      hoverBg: 'bg-white',
+      hoverText: 'text-black',
+      glow: 'bg-white',
+    },
   };
+
+  const variantStyles = variants[variant];
 
   // Size styles
   const sizes = {
-    sm: 'px-6 py-2 text-sm tracking-[0.2em]',
-    md: 'px-10 py-3 text-base tracking-[0.25em]',
-    lg: 'px-16 py-4 text-lg tracking-[0.3em]',
+    sm: 'px-6 py-2.5 text-xs tracking-[0.2em]',
+    md: 'px-10 py-3.5 text-sm tracking-[0.25em]',
+    lg: 'px-14 py-4 text-base tracking-[0.3em]',
+    xl: 'px-20 py-5 text-lg tracking-[0.35em]',
   };
 
   return (
     <button
       ref={buttonRef}
+      type={type}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={(e) => {
+        handleMouseLeave();
+        handleMouseLeaveReset();
+      }}
+      onMouseMove={handleMouseMove}
       disabled={disabled}
       className={`
         relative overflow-hidden
-        font-light uppercase
+        font-medium uppercase
         border-2
         transition-colors duration-300
-        ${variants[variant]}
+        ${variantStyles.bg}
+        ${variantStyles.text}
+        ${variantStyles.border}
         ${sizes[size]}
         ${fullWidth ? 'w-full' : ''}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         ${className}
       `}
-      style={{ borderRadius: 0 }} // Sharp edges enforced
+      style={{ 
+        borderRadius: 0,
+        perspective: '1000px',
+        transformStyle: 'preserve-3d',
+      }}
     >
+      {/* Glow effect */}
+      <div
+        ref={glowRef}
+        className={`absolute -inset-1 ${variantStyles.glow} opacity-0 blur-xl -z-10`}
+      />
+
       {/* Animated background overlay */}
       <div
-        className="button-bg absolute inset-0 origin-left"
+        className="button-bg absolute inset-0 origin-left z-0"
         style={{
           transform: 'scaleX(0)',
-          backgroundColor: variant === 'primary' ? 'white' : 'black',
-          zIndex: 0,
+          backgroundColor: variant === 'primary' ? 'white' : variant === 'secondary' ? 'black' : variant === 'accent' ? '#d97706' : 'white',
         }}
       />
 
       {/* Ripple effect */}
       <div
         ref={rippleRef}
-        className="absolute w-4 h-4 rounded-full pointer-events-none"
+        className="absolute w-4 h-4 rounded-full pointer-events-none z-10"
         style={{
-          backgroundColor: variant === 'primary' ? 'white' : 'black',
+          backgroundColor: variant === 'primary' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.3)',
           opacity: 0,
         }}
       />
 
-      {/* Button text */}
-      <span className="relative z-10 block">
+      {/* Button text with smooth color transition */}
+      <span className={`relative z-20 block transition-colors duration-300`}>
         {children}
       </span>
+
+      {/* Shine effect on hover */}
+      <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden">
+        <div className="shine absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
+      </div>
     </button>
   );
 }
 
 /**
  * Button Group Component
- * For aligned button layouts
  */
 export function ButtonGroup({ children, align = 'center', gap = '4', className = '' }) {
   const alignments = {
