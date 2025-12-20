@@ -3,7 +3,7 @@ import gsap from 'gsap';
 
 /**
  * Sharp-edged Button with Premium Interactions
- * Inspired by Apple's micro-interaction design
+ * Primary variant is now black with white text
  */
 export default function Button({ 
   children, 
@@ -76,7 +76,7 @@ export default function Button({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Subtle tilt effect (Apple style)
+    // Subtle tilt effect
     const xPercent = (x / rect.width - 0.5) * 10;
     const yPercent = (y / rect.height - 0.5) * 10;
 
@@ -136,7 +136,7 @@ export default function Button({
     if (onClick) onClick(e);
   };
 
-  // Variant styles
+  // Variant styles - PRIMARY IS NOW BLACK
   const variants = {
     primary: {
       bg: 'bg-black',

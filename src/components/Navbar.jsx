@@ -5,8 +5,10 @@ import { Bars3BottomLeftIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { FaInstagram, FaShoppingCart } from "react-icons/fa";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import ContactForm from './contact/ContactForm'
-export default function Navbar({ theme = 'dark', cartCount = 0 }) {
+import { useCart } from "../context/CartContex";
+
+export default function Navbar({ theme = 'dark' }) {
+  const { cartCount } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
@@ -15,25 +17,25 @@ export default function Navbar({ theme = 'dark', cartCount = 0 }) {
   const logoRef = useRef(null);
   const menuRef = useRef(null);
   const blobRef = useRef(null);
-  const [isMobile, setIsMobile] = useState(
-    window.innerWidth < 768 );
 
-    useEffect(() => {
+  // Detect screen size
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
     const handleResize = () => {
-        const mobile = window.innerWidth < 768;
-        setIsMobile(mobile);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
 
-        // Auto-close menu if switching to desktop
-        if (!mobile) {
+      // Auto-close menu if switching to desktop
+      if (!mobile) {
         setIsOpen(false);
         setIsVisible(false);
-        }
+      }
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
+  }, []);
 
   // Close menu when route changes
   useEffect(() => {
@@ -148,68 +150,68 @@ export default function Navbar({ theme = 'dark', cartCount = 0 }) {
     { name: "Home", path: "/" },
     { name: "Shop", path: "/shop" },
     { name: "PlayStation", path: "/playstation" },
-    { name: "PodCast", path: "/podcast" },
+    { name: "Podcast", path: "/podcast" },
     { name: "Discover", path: "/discover" },
     { name: "Contact", path: "/contact" },
   ];
 
   // Theme styles
-  const isDark = theme === 'light'
+  const isDark = theme === 'light';
   const textColor = isDark ? 'text-white' : 'text-black';
-  const bgColor = isDark ? 'bg-black/20' : 'bg-white/90';
-  const borderColor = isDark ? 'border-white/10' : 'border-black/10';
+  const bgColor = isDark ? 'bg-black/10' : 'bg-white/95';
+  const borderColor = isDark ? 'border-white/10' : 'border-black/5';
   const hoverColor = isDark ? 'hover:text-amber-500' : 'hover:text-amber-600';
 
   return (
     <>
-      <nav className={`w-full fixed top-0 left-0 z-50  transition-all duration-300`}>
+      <nav className={`w-full fixed top-0 left-0 z-50 ${bgColor} backdrop-blur-md border-b ${borderColor} transition-all duration-300`}>
         <div
           ref={navRef}
-          className="flex items-center justify-between px-4 sm:px-6 lg:px-12 py-3 lg:py-4"
+          className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 sm:py-3.5 lg:py-4"
         >
-          {/* Logo */}
+          {/* Logo - Responsive Sizing */}
           <Link to="/" className="flex-shrink-0">
             <img 
               ref={logoRef} 
               src={logo} 
               alt="JGPNR Logo" 
-              className="h-16 sm:h-20 lg:h-24 w-auto cursor-pointer drop-shadow-lg transition-transform hover:scale-105" 
+              className="h-14 sm:h-16 md:h-18 lg:h-20 xl:h-24 w-auto cursor-pointer drop-shadow-lg transition-transform hover:scale-105" 
             />
           </Link>
 
           {/* Desktop & Tablet Menu - Hidden on Mobile */}
-          <div className="hidden md:flex items-center gap-6 lg:gap-8 xl:gap-10">
+          <div className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
-                className={`${textColor} text-sm lg:text-base tracking-wider uppercase font-light ${hoverColor} transition-all duration-300 hover:tracking-widest relative group`}
+                className={`${textColor} text-xs lg:text-sm xl:text-base tracking-wider uppercase font-light ${hoverColor} transition-all duration-300 hover:tracking-widest relative group`}
               >
                 {item.name}
                 <span className={`absolute bottom-0 left-0 w-0 h-[2px] ${isDark ? 'bg-amber-500' : 'bg-amber-600'} transition-all duration-300 group-hover:w-full`} />
               </Link>
             ))}
             
-            {/* Instagram Icon */}
+            {/* Instagram Icon - Desktop */}
             <a 
               href="https://instagram.com" 
               target="_blank" 
               rel="noopener noreferrer"
               className={`${textColor} ${hoverColor} transition-all duration-300 hover:scale-110 hover:rotate-12`}
             >
-              <FaInstagram className="text-xl lg:text-2xl" />
+              <FaInstagram className="text-lg lg:text-xl xl:text-2xl" />
             </a>
           </div>
 
           {/* Right Side - Cart + Hamburger */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Cart Icon */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Cart Icon - Responsive */}
             <Link to="/cart">
               <div className="relative group">
-                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/5'} backdrop-blur-md border-2 ${isDark ? 'border-white/20' : 'border-black/10'} flex items-center justify-center transition-all duration-300 ${isDark ? 'hover:bg-white/20 hover:border-white/40' : 'hover:bg-black/10 hover:border-black/20'} hover:scale-110`}>
-                  <FaShoppingCart className={`${textColor} text-base sm:text-lg`} />
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 md:w-13 md:h-13 lg:w-14 lg:h-14 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/5'} backdrop-blur-md border-2 ${isDark ? 'border-white/20' : 'border-black/10'} flex items-center justify-center transition-all duration-300 ${isDark ? 'hover:bg-white/20 hover:border-white/40' : 'hover:bg-black/10 hover:border-black/20'} hover:scale-110`}>
+                  <FaShoppingCart className={`${textColor} text-sm sm:text-base lg:text-lg`} />
                   {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-amber-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                    <span className="absolute -top-1 -right-1 bg-amber-500 text-black text-[10px] sm:text-xs font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center animate-pulse">
                       {cartCount}
                     </span>
                   )}
@@ -217,25 +219,24 @@ export default function Navbar({ theme = 'dark', cartCount = 0 }) {
               </div>
             </Link>
 
+            {/* Hamburger Menu - Mobile/Tablet Only */}
             {isMobile && (
-                <button
-                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center backdrop-blur-md border-2 transition-all duration-300 focus:outline-none ${
-                    !isOpen
-                        ? `${isDark ? "bg-white/10 border-white/20 hover:bg-white/20" : "bg-black/5 border-black/10 hover:bg-black/10"}`
-                        : "bg-amber-500 border-amber-600"
-                    }`}
-                    onClick={toggleMenu}
-                    aria-label={isOpen ? "Close menu" : "Open menu"}
-                >
-                    {!isOpen ? (
-                    <Bars3BottomLeftIcon
-                        className={`h-5 w-5 sm:h-6 sm:w-6 ${textColor}`}
-                    />
-                    ) : (
-                    <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
-                    )}
-                </button>
+              <button
+                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center backdrop-blur-md border-2 transition-all duration-300 focus:outline-none ${
+                  !isOpen
+                    ? `${isDark ? "bg-white/10 border-white/20 hover:bg-white/20" : "bg-black/5 border-black/10 hover:bg-black/10"}`
+                    : "bg-amber-500 border-amber-600"
+                }`}
+                onClick={toggleMenu}
+                aria-label={isOpen ? "Close menu" : "Open menu"}
+              >
+                {!isOpen ? (
+                  <Bars3BottomLeftIcon className={`h-5 w-5 sm:h-6 sm:w-6 ${textColor}`} />
+                ) : (
+                  <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
                 )}
+              </button>
+            )}
           </div>
         </div>
       </nav>
@@ -244,7 +245,7 @@ export default function Navbar({ theme = 'dark', cartCount = 0 }) {
       {isVisible && (
         <div 
           ref={menuRef} 
-          className="fixed inset-0 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 z-40 md:hidden"
+          className="fixed inset-0 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 z-40 md:hidden overflow-hidden"
         >
           {/* Animated Blobs */}
           <div className="menu-blob absolute inset-0 flex items-center justify-center opacity-15 pointer-events-none">
@@ -258,19 +259,19 @@ export default function Navbar({ theme = 'dark', cartCount = 0 }) {
             </svg>
           </div>
 
-          {/* Menu Items */}
-          <ul className="absolute inset-0 flex flex-col items-center justify-center space-y-4 text-black z-10">
+          {/* Menu Items - Mobile */}
+          <ul className="absolute inset-0 flex flex-col items-center justify-center space-y-3 sm:space-y-4 text-black z-10 px-4">
             {navItems.map((item) => (
               <li key={item.name} className="menu-item group">
                 <Link to={item.path}>
-                  <span className="text-xl sm:text-2xl font-light tracking-wide transition-all duration-300 group-hover:tracking-widest group-hover:text-white">
+                  <span className="text-lg sm:text-xl md:text-2xl font-light tracking-wide transition-all duration-300 group-hover:tracking-widest group-hover:text-white">
                     {item.name}
                   </span>
                 </Link>
               </li>
             ))}
             
-            <li className="menu-item mt-6">
+            <li className="menu-item mt-4 sm:mt-6">
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
                 <FaInstagram className="text-2xl sm:text-3xl cursor-pointer hover:scale-110 hover:rotate-12 transition-all duration-300" />
               </a>

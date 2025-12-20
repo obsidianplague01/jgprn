@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import FormInput, { FormTextarea } from '../forms/FormInput'; // ✨ Import FormInput
 import Button from '../Button';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -13,23 +14,23 @@ export default function ContactForm() {
     message: '',
   });
 
-  const [focusedField, setFocusedField] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [charCount, setCharCount] = useState(0);
+  const [submitError, setSubmitError] = useState(null);
 
   const containerRef = useRef(null);
   const formRef = useRef(null);
   const cursorRef = useRef(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
     const ctx = gsap.context(() => {
       // Scroll-triggered reveal animation
       gsap.fromTo(
         formRef.current,
-        {
-          opacity: 0,
-          y: 100,
-        },
+        { opacity: 0, y: 100 },
         {
           opacity: 1,
           y: 0,
@@ -47,10 +48,7 @@ export default function ContactForm() {
       // Stagger input fields
       gsap.fromTo(
         '.form-field',
-        {
-          opacity: 0,
-          x: -30,
-        },
+        { opacity: 0, x: -30 },
         {
           opacity: 1,
           x: 0,
@@ -67,11 +65,7 @@ export default function ContactForm() {
       // Header text split animation
       gsap.fromTo(
         '.header-word',
-        {
-          opacity: 0,
-          y: 50,
-          rotateX: -90,
-        },
+        { opacity: 0, y: 50, rotateX: -90 },
         {
           opacity: 1,
           y: 0,
@@ -90,7 +84,7 @@ export default function ContactForm() {
     return () => ctx.revert();
   }, []);
 
-  // Custom cursor for form area
+  // Custom cursor for form area (desktop only)
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!cursorRef.current) return;
@@ -129,6 +123,33 @@ export default function ContactForm() {
     }
   }, []);
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required';
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = 'Message must be at least 10 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -136,349 +157,309 @@ export default function ContactForm() {
       [name]: value,
     });
 
-    if (name === 'message') {
-      setCharCount(value.length);
-    }
-  };
-
-  const handleFocus = (field) => {
-    setFocusedField(field);
-    
-    // Animate label on focus
-    gsap.to(`.label-${field}`, {
-      y: -30,
-      scale: 0.85,
-      color: '#000',
-      duration: 0.3,
-      ease: 'power2.out',
-    });
-
-    // Animate underline on focus
-    gsap.to(`.underline-${field}`, {
-      scaleX: 1,
-      duration: 0.4,
-      ease: 'power3.out',
-    });
-  };
-
-  const handleBlur = (field) => {
-    if (!formData[field]) {
-      gsap.to(`.label-${field}`, {
-        y: 0,
-        scale: 1,
-        color: 'rgba(0, 0, 0, 0.5)',
-        duration: 0.3,
-        ease: 'power2.out',
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: '',
       });
     }
-
-    setFocusedField(null);
-    
-    gsap.to(`.underline-${field}`, {
-      scaleX: 0,
-      duration: 0.4,
-      ease: 'power3.out',
-    });
   };
 
-  const handleSubmit = (e) => {
+  const validateEmail = (email) => {
+    return /\S+@\S+\.\S+/.test(email);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Disable form temporarily
-    const inputs = formRef.current.querySelectorAll('input, textarea, button');
-    inputs.forEach(input => input.disabled = true);
+    if (!validateForm()) {
+      gsap.to(formRef.current, {
+        x: [-10, 10, -10, 10, 0],
+        duration: 0.5,
+        ease: 'power2.out',
+      });
+      return;
+    }
 
-    // Success animation sequence
-    const tl = gsap.timeline({
-      onComplete: () => {
-        setSubmitted(true);
-        
-        // Reset after 4 seconds
-        setTimeout(() => {
-          gsap.to('.success-message', {
-            opacity: 0,
-            y: -20,
-            duration: 0.5,
-            onComplete: () => {
-              setSubmitted(false);
-              setFormData({
-                firstName: '',
-                lastName: '',
-                email: '',
-                message: '',
-              });
-              setCharCount(0);
-              inputs.forEach(input => input.disabled = false);
-            },
-          });
-        }, 4000);
-      },
-    });
+    setIsSubmitting(true);
+    setSubmitError(null);
 
-    // Form collapse animation
-    tl.to('.form-field', {
-      opacity: 0,
-      x: -50,
-      stagger: 0.05,
-      duration: 0.4,
-      ease: 'power2.in',
-    })
-    .to(formRef.current, {
-      scale: 0.95,
-      duration: 0.3,
-    }, '-=0.2')
-    // Success message entrance
-    .fromTo(
-      '.success-message',
-      {
-        opacity: 0,
-        scale: 0.8,
-        y: 30,
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'back.out(2)',
+    try {
+      // In production, send to your backend API
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
       }
-    )
-    // Confetti-like particles
-    .to('.success-particle', {
-      y: -100,
-      x: (i) => (i % 2 === 0 ? -50 : 50),
-      opacity: 0,
-      stagger: 0.05,
-      duration: 1,
-      ease: 'power2.out',
-    }, '-=0.5');
+
+      // Disable form temporarily
+      const inputs = formRef.current.querySelectorAll('input, textarea, button');
+      inputs.forEach(input => input.disabled = true);
+
+      // Success animation sequence
+      const tl = gsap.timeline({
+        onComplete: () => {
+          setSubmitted(true);
+          
+          // Reset after 4 seconds
+          setTimeout(() => {
+            gsap.to('.success-message', {
+              opacity: 0,
+              y: -20,
+              duration: 0.5,
+              onComplete: () => {
+                setSubmitted(false);
+                setFormData({
+                  firstName: '',
+                  lastName: '',
+                  email: '',
+                  message: '',
+                });
+                inputs.forEach(input => input.disabled = false);
+                setIsSubmitting(false);
+              },
+            });
+          }, 4000);
+        },
+      });
+
+      // Form collapse animation
+      tl.to('.form-field', {
+        opacity: 0,
+        x: -50,
+        stagger: 0.05,
+        duration: 0.4,
+        ease: 'power2.in',
+      })
+      .to(formRef.current, {
+        scale: 0.95,
+        duration: 0.3,
+      }, '-=0.2')
+      // Success message entrance
+      .fromTo(
+        '.success-message',
+        { opacity: 0, scale: 0.8, y: 30 },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'back.out(2)',
+        }
+      )
+      // Confetti-like particles
+      .to('.success-particle', {
+        y: -100,
+        x: (i) => (i % 2 === 0 ? -50 : 50),
+        opacity: 0,
+        stagger: 0.05,
+        duration: 1,
+        ease: 'power2.out',
+      }, '-=0.5');
+
+    } catch (error) {
+      console.error('Contact form submission failed:', error);
+      setSubmitError('Failed to send message. Please try again.');
+      setIsSubmitting(false);
+
+      // Show error animation
+      gsap.from('.submit-error', {
+        opacity: 0,
+        y: -10,
+        duration: 0.3,
+      });
+
+      setTimeout(() => setSubmitError(null), 5000);
+    }
   };
 
   return (
-    <section
-      ref={containerRef}
-      className="relative mt-7 min-h-screen flex items-center justify-center px-6 md:px-12 py-20 overflow-hidden"
-    >
-      {/* Custom Cursor */}
-      <div
-        ref={cursorRef}
-        className="fixed w-8 h-8 border-2 border-black rounded-full pointer-events-none z-50 mix-blend-difference"
-        style={{
-          transform: 'translate(-50%, -50%) scale(0)',
-          opacity: 0,
-        }}
-      />
-
-      {/* Background Grid Pattern */}
-      <div className="absolute inset-0 opacity-[0.02]">
+    <>
+      <section
+        ref={containerRef}
+        className="relative min-h-screen flex items-center justify-center bg-white px-4 sm:px-6 lg:px-12 py-20 sm:py-24 pt-32 sm:pt-36 overflow-hidden"
+      >
+        {/* Custom Cursor - Desktop Only */}
         <div
-          className="w-full h-full"
-          
+          ref={cursorRef}
+          className="hidden lg:block fixed w-8 h-8 border-2 border-black rounded-full pointer-events-none z-50 mix-blend-difference"
+          style={{
+            transform: 'translate(-50%, -50%) scale(0)',
+            opacity: 0,
+          }}
         />
-      </div>
 
-      <div className="w-full max-w-3xl relative z-10">
-        {/* Section Header */}
-        <div className="text-center mb-16" style={{ perspective: '1000px' }}>
-          <div className="overflow-hidden">
-            <h2 className="text-4xl md:text-6xl font-light tracking-[0.2em] uppercase mb-4">
-              {['Get', 'in', 'Touch'].map((word, i) => (
-                <span
-                  key={i}
-                  className="header-word inline-block mr-4"
-                  style={{ transformOrigin: '50% 50% -50px' }}
-                >
-                  {word}
-                </span>
-              ))}
-            </h2>
-          </div>
-          <p className="text-sm md:text-base tracking-[0.15em] opacity-60 uppercase">
-            Let's create something together
-          </p>
-          
-          {/* Decorative Line Animation */}
-          <div className="w-24 h-[1px] bg-black mx-auto mt-6 origin-center">
-            <div className="h-full bg-black animate-pulse" />
-          </div>
+        {/* Background Grid Pattern */}
+        <div className="absolute inset-0 opacity-[0.02]">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: 'linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px)',
+              backgroundSize: '50px 50px'
+            }}
+          />
         </div>
 
-        {/* Contact Form */}
-        <form ref={formRef} onSubmit={handleSubmit} className="space-y-10 relative">
-          
-          {/* First Name & Last Name Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {/* First Name */}
-            <div className="form-field relative group">
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                onFocus={() => handleFocus('firstName')}
-                onBlur={() => handleBlur('firstName')}
-                required
-                className="w-full bg-transparent border-b-2 border-black/10 py-4 px-0 text-lg outline-none transition-all duration-300"
-              />
-              <label
-                className={`label-firstName absolute left-0 top-4 transition-all duration-300 pointer-events-none text-black/50 uppercase tracking-[0.15em] text-sm origin-left`}
-              >
-                First Name
-              </label>
-              {/* Active underline */}
-              <div
-                className={`underline-firstName absolute bottom-0 left-0 w-full h-[2px] bg-black origin-left`}
-                style={{ transform: 'scaleX(0)' }}
-              />
-              {/* Typing indicator dots */}
-              {focusedField === 'firstName' && formData.firstName && (
-                <div className="absolute -right-8 top-1/2 -translate-y-1/2 flex gap-1">
-                  {[0, 1, 2].map((i) => (
-                    <div
-                      key={i}
-                      className="w-1 h-1 bg-black rounded-full animate-bounce"
-                      style={{ animationDelay: `${i * 0.15}s` }}
-                    />
-                  ))}
-                </div>
-              )}
+        <div className="w-full max-w-4xl relative z-10">
+          {/* Section Header */}
+          <div className="text-center mb-12 sm:mb-16" style={{ perspective: '1000px' }}>
+            <div className="overflow-hidden mb-4 sm:mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-[0.2em] uppercase">
+                {['Get', 'in', 'Touch'].map((word, i) => (
+                  <span
+                    key={i}
+                    className="header-word inline-block mr-3 sm:mr-4"
+                    style={{ transformOrigin: '50% 50% -50px' }}
+                  >
+                    {word}
+                  </span>
+                ))}
+              </h2>
             </div>
-
-            {/* Last Name */}
-            <div className="form-field relative group">
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                onFocus={() => handleFocus('lastName')}
-                onBlur={() => handleBlur('lastName')}
-                required
-                className="w-full bg-transparent border-b-2 border-black/10 py-4 px-0 text-lg outline-none transition-all duration-300"
-              />
-              <label
-                className={`label-lastName absolute left-0 top-4 transition-all duration-300 pointer-events-none text-black/50 uppercase tracking-[0.15em] text-sm origin-left`}
-              >
-                Last Name
-              </label>
-              <div
-                className={`underline-lastName absolute bottom-0 left-0 w-full h-[2px] bg-black origin-left`}
-                style={{ transform: 'scaleX(0)' }}
-              />
-              {focusedField === 'lastName' && formData.lastName && (
-                <div className="absolute -right-8 top-1/2 -translate-y-1/2 flex gap-1">
-                  {[0, 1, 2].map((i) => (
-                    <div
-                      key={i}
-                      className="w-1 h-1 bg-black rounded-full animate-bounce"
-                      style={{ animationDelay: `${i * 0.15}s` }}
-                    />
-                  ))}
-                </div>
-              )}
+            <p className="text-xs sm:text-sm md:text-base tracking-[0.15em] opacity-60 uppercase">
+              Let's create something together
+            </p>
+            
+            {/* Decorative Line Animation */}
+            <div className="w-20 sm:w-24 h-[1px] bg-black mx-auto mt-4 sm:mt-6 origin-center">
+              <div className="h-full bg-black animate-pulse" />
             </div>
           </div>
 
-          {/* Email */}
-          <div className="form-field relative group">
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              onFocus={() => handleFocus('email')}
-              onBlur={() => handleBlur('email')}
-              required
-              className="w-full bg-transparent border-b-2 border-black/10 py-4 px-0 text-lg outline-none transition-all duration-300"
-            />
-            <label
-              className={`label-email absolute left-0 top-4 transition-all duration-300 pointer-events-none text-black/50 uppercase tracking-[0.15em] text-sm origin-left`}
-            >
-              Email
-            </label>
-            <div
-              className={`underline-email absolute bottom-0 left-0 w-full h-[2px] bg-black origin-left`}
-              style={{ transform: 'scaleX(0)' }}
-            />
-            {/* Email validation indicator */}
-            {formData.email && formData.email.includes('@') && (
-              <div className="absolute right-0 top-1/2 -translate-y-1/2">
-                <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+          {/* Contact Form */}
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-8 sm:space-y-10 relative">
+            
+            {/* Submit Error Message */}
+            {submitError && (
+              <div className="submit-error bg-red-500/10 border-2 border-red-500/50 rounded-lg p-4 text-red-600 text-sm text-center">
+                {submitError}
               </div>
             )}
-          </div>
 
-          {/* Message */}
-          <div className="form-field relative group">
-            <textarea
+            {/* ✨ First Name & Last Name - Using FormInput */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
+              <FormInput
+                id="firstName"
+                name="firstName"
+                type="text"
+                value={formData.firstName}
+                onChange={handleChange}
+                label="First Name"
+                placeholder="John"
+                required={true}
+                error={errors.firstName}
+                disabled={isSubmitting}
+                className="form-field"
+                theme="light"
+              />
+
+              <FormInput
+                id="lastName"
+                name="lastName"
+                type="text"
+                value={formData.lastName}
+                onChange={handleChange}
+                label="Last Name"
+                placeholder="Doe"
+                required={true}
+                error={errors.lastName}
+                disabled={isSubmitting}
+                className="form-field"
+                theme="light"
+              />
+            </div>
+
+            {/* ✨ Email - Using FormInput with validation icon */}
+            <FormInput
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              label="Email"
+              placeholder="you@example.com"
+              required={true}
+              error={errors.email}
+              disabled={isSubmitting}
+              className="form-field"
+              showValidationIcon={true}
+              isValid={validateEmail(formData.email)}
+              theme="light"
+            />
+
+            {/* ✨ Message - Using FormTextarea with character count */}
+            <FormTextarea
+              id="message"
               name="message"
               value={formData.message}
               onChange={handleChange}
-              onFocus={() => handleFocus('message')}
-              onBlur={() => handleBlur('message')}
-              required
-              rows="6"
-              maxLength="500"
-              className="w-full bg-transparent border-b-2 border-black/10 py-4 px-0 text-lg outline-none resize-none transition-all duration-300"
+              label="Message"
+              placeholder="Tell us about your project..."
+              required={true}
+              error={errors.message}
+              disabled={isSubmitting}
+              className="form-field"
+              rows={6}
+              maxLength={500}
+              showCharCount={true}
+              theme="light"
             />
-            <label
-              className={`label-message absolute left-0 top-4 transition-all duration-300 pointer-events-none text-black/50 uppercase tracking-[0.15em] text-sm origin-left`}
-            >
-              Message
-            </label>
-            <div
-              className={`underline-message absolute bottom-0 left-0 w-full h-[2px] bg-black origin-left`}
-              style={{ transform: 'scaleX(0)' }}
-            />
-            {/* Character counter */}
-            {focusedField === 'message' && (
-              <div className="absolute right-0 -bottom-6 text-xs opacity-60 tracking-wider">
-                {charCount}/500
-              </div>
-            )}
-          </div>
 
-          {/* Submit Button */}
-          <div className="pt-8">
-            {!submitted ? (
-              <Button type="submit" variant="primary" size="lg" fullWidth>
-                Send Message
-              </Button>
-            ) : (
-              <div className="success-message text-center py-12 relative">
-                {/* Success particles */}
-                {[...Array(8)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="success-particle absolute w-2 h-2 bg-black rounded-full"
-                    style={{
-                      left: `${50 + (i % 2 === 0 ? -10 : 10) * (i + 1)}%`,
-                      top: '50%',
-                    }}
-                  />
-                ))}
-                
-                {/* Success icon */}
-                <div className="w-16 h-16 mx-auto mb-4 border-2 border-black rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+            {/* Submit Button */}
+            <div className="pt-6 sm:pt-8">
+              {!submitted ? (
+                <Button 
+                  type="submit" 
+                  variant="primary" 
+                  size="lg" 
+                  fullWidth
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                </Button>
+              ) : (
+                <div className="success-message text-center py-10 sm:py-12 relative">
+                  {/* Success particles */}
+                  {[...Array(8)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="success-particle absolute w-2 h-2 bg-black rounded-full"
+                      style={{
+                        left: `${50 + (i % 2 === 0 ? -10 : 10) * (i + 1)}%`,
+                        top: '50%',
+                      }}
+                    />
+                  ))}
+                  
+                  {/* Success icon */}
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 border-2 border-black rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  
+                  <p className="text-xl sm:text-2xl tracking-[0.15em] uppercase font-light mb-2">
+                    Message Sent
+                  </p>
+                  <p className="text-xs sm:text-sm opacity-60 tracking-wider">
+                    We'll be in touch soon
+                  </p>
                 </div>
-                
-                <p className="text-2xl tracking-[0.15em] uppercase font-light mb-2">
-                  Message Sent
-                </p>
-                <p className="text-sm opacity-60 tracking-wider">
-                  We'll be in touch soon
-                </p>
-              </div>
-            )}
-          </div>
-        </form>
+              )}
+            </div>
+          </form>
 
-      </div>
-    </section>
+          {/* Bottom Decorative Line */}
+          <div className="mt-16 sm:mt-20 h-[1px] bg-gradient-to-r from-transparent via-black/20 to-transparent" />
+        </div>
+      </section>
+    </>
   );
 }

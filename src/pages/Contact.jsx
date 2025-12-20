@@ -11,10 +11,10 @@ export default function ContactPage() {
 
   return (
     <>
-      <Navbar theme="dark" cartCount={0} />
+      <Navbar theme="dark" />
       <div className="relative bg-white">
           {/* Add spacing for navbar */}
-          <div className="h-24 md:h-28" />
+          <div className="h-20 sm:h-24 md:h-28" />
           
           {/* Contact Form */}
           <ContactForm />
@@ -23,6 +23,5 @@ export default function ContactPage() {
           <Footer />
       </div>
     </>
-    
   );
 }
