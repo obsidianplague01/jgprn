@@ -1,4 +1,3 @@
-// LandingPage.jsx
 import { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
@@ -15,7 +14,10 @@ export default function LandingPage() {
   const glow1Ref = useRef(null);
   const glow2Ref = useRef(null);
   const glow3Ref = useRef(null);
-  const glow4Ref = useRef(null);
+  const neonLightRef = useRef(null);
+  const playIconRef = useRef(null);
+  const clickFlashRef = useRef(null);
+  const neonAnimationRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,8 +64,7 @@ export default function LandingPage() {
         "-=0.8"
       );
 
-    // 🌟 Multiple layered glow animations - subtle and beautiful
-    // Glow 1 - Purple outer ring (slow, large)
+    // 🌟 Multiple layered glow animations
     gsap.to(glow1Ref.current, {
       opacity: 0.4,
       scale: 1.3,
@@ -73,7 +74,6 @@ export default function LandingPage() {
       ease: "sine.inOut",
     });
 
-    // Glow 2 - Pink middle ring (medium speed)
     gsap.to(glow2Ref.current, {
       opacity: 0.5,
       scale: 1.2,
@@ -84,7 +84,6 @@ export default function LandingPage() {
       delay: 0.5,
     });
 
-    // Glow 3 - Indigo inner ring (faster)
     gsap.to(glow3Ref.current, {
       opacity: 0.6,
       scale: 1.15,
@@ -93,24 +92,6 @@ export default function LandingPage() {
       yoyo: true,
       ease: "sine.inOut",
       delay: 1,
-    });
-
-    // Glow 4 - Rotating halo effect
-    gsap.to(glow4Ref.current, {
-      rotation: 360,
-      duration: 20,
-      repeat: -1,
-      ease: "none",
-    });
-
-    gsap.to(glow4Ref.current, {
-      opacity: 0.3,
-      scale: 1.25,
-      duration: 3,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-      delay: 1.5,
     });
 
     // 🔄 Button gradient animation
@@ -122,40 +103,191 @@ export default function LandingPage() {
       ease: "sine.inOut",
     });
 
-    // ✨ Play icon pulse with subtle rotation
-    gsap.to(".play-icon", {
-      scale: 1.1,
-      duration: 2.5,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
+    // 💫 SMOOTH CONTINUOUS BORDER GLOW ANIMATION - Moves from RIGHT to LEFT
+    const neonRect = neonLightRef.current?.querySelector('rect');
+    if (neonRect) {
+      // Start from right side (higher offset) and move to left (lower offset)
+      neonAnimationRef.current = gsap.fromTo(neonRect,
+        { strokeDashoffset: 1000 }, // Start position (right)
+        { 
+          strokeDashoffset: 0, // End position (left)
+          duration: 6,
+          repeat: -1,
+          ease: "none",
+        }
+      );
+    }
+
+    // ✨ Play icon complex continuous animation sequence - NO PAUSE
+    const playIconTimeline = gsap.timeline({ repeat: -1 });
+    
+    playIconTimeline
+      .fromTo(playIconRef.current, 
+        { opacity: 0.5, rotation: 0, scale: 1 },
+        { opacity: 1, rotation: 360, scale: 1.3, duration: 2, ease: "power2.inOut" }
+      )
+      .to(playIconRef.current, {
+        scale: 1.4,
+        duration: 0.6,
+        yoyo: true,
+        repeat: 4,
+        ease: "sine.inOut"
+      })
+      .to(playIconRef.current, {
+        opacity: 0.5,
+        scale: 1,
+        rotation: 720,
+        duration: 1.5,
+        ease: "power2.inOut"
+      });
+
+    // 🎭 Subtle text letter animations
+    const headingSpans = document.querySelectorAll('.heading-letter');
+    headingSpans.forEach((span, i) => {
+      gsap.to(span, {
+        y: -5,
+        duration: 2 + (i * 0.1),
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        delay: i * 0.1,
+      });
     });
 
-    gsap.to(".play-icon", {
-      rotation: 15,
-      duration: 4,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-    });
+    // 🌊 Reduced parallax on mouse move
+    const handleMouseMove = (e) => {
+      const { clientX, clientY } = e;
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      
+      const moveX = (clientX - centerX) / 150;
+      const moveY = (clientY - centerY) / 150;
+
+      gsap.to(heroTextRef.current, {
+        x: moveX,
+        y: moveY,
+        duration: 1.5,
+        ease: "power2.out",
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (neonAnimationRef.current) {
+        neonAnimationRef.current.kill();
+      }
+    };
   }, []);
+
+  const handleMouseEnter = () => {
+    gsap.to(buttonRef.current, {
+      y: -15,
+      scale: 1.08,
+      duration: 0.5,
+      ease: "power3.out",
+    });
+
+    gsap.to([glow1Ref.current, glow2Ref.current, glow3Ref.current], {
+      opacity: 0.9,
+      scale: "+=0.2",
+      duration: 0.4,
+      ease: "power2.out",
+    });
+
+    // Enhanced play icon animation on hover
+    gsap.to(playIconRef.current, {
+      opacity: 1,
+      scale: 1.6,
+      rotation: "+=30",
+      x: 5,
+      duration: 0.5,
+      ease: "back.out(2)",
+    });
+
+    gsap.to(".btn-bg", {
+      backgroundPosition: "100% 50%",
+      duration: 0.6,
+      ease: "power2.out",
+    });
+  };
+
+  const handleMouseLeave = () => {
+    gsap.to(buttonRef.current, {
+      y: 0,
+      scale: 1,
+      duration: 0.5,
+      ease: "power3.inOut",
+    });
+
+    gsap.to(glow1Ref.current, { opacity: 0.4, scale: 1.3, duration: 0.5 });
+    gsap.to(glow2Ref.current, { opacity: 0.5, scale: 1.2, duration: 0.5 });
+    gsap.to(glow3Ref.current, { opacity: 0.6, scale: 1.15, duration: 0.5 });
+
+    // Let the play icon continue its timeline animation
+    gsap.to(playIconRef.current, {
+      x: 0,
+      duration: 0.5,
+      ease: "power2.inOut",
+    });
+
+    gsap.to(".btn-bg", {
+      backgroundPosition: "0% 50%",
+      duration: 0.6,
+      ease: "power2.out",
+    });
+  };
+
+  const handleClick = () => {
+    gsap.to(buttonRef.current, {
+      scale: 0.95,
+      duration: 0.1,
+      yoyo: true,
+      repeat: 1,
+      ease: "power2.inOut",
+    });
+
+    // Play icon click animation
+    gsap.to(playIconRef.current, {
+      scale: 0.8,
+      rotation: "+=180",
+      duration: 0.3,
+      ease: "power2.in",
+    });
+
+    gsap.fromTo(
+      clickFlashRef.current,
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1.5, duration: 0.6, ease: "power2.out" }
+    );
+
+    gsap.to(clickFlashRef.current, {
+      opacity: 0,
+      delay: 0.2,
+      duration: 0.4,
+      onComplete: () => navigate("/playstation"),
+    });
+  };
 
   return (
     <>
       <Navbar theme="light" cartCount={0} />
 
       {/* HERO SECTION - 100vh */}
-      <section className="relative w-full h-screen overflow-hidden">
-        {/* Video Background */}
-        <video
-          ref={videoRef}
-          src={bgVideo}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+      <section className="relative w-full h-screen">
+        {/* Video Background - Fixed position */}
+        <div className="absolute inset-0 w-full h-full">
+          <video
+            ref={videoRef}
+            src={bgVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          />
+        </div>
 
         {/* Overlay */}
         <div
@@ -172,29 +304,46 @@ export default function LandingPage() {
             {/* MAIN HEADING - Responsive Typography */}
             <h1 className="heading-text text-white leading-[0.9] sm:leading-[0.92] md:leading-[0.95] font-bold tracking-[0.08em] sm:tracking-[0.1em] md:tracking-[0.12em] mb-4 sm:mb-6 md:mb-8">
               <span className="block text-[13vw] sm:text-[11vw] md:text-[9vw] lg:text-[8vw] xl:text-[7vw]">
-                JUSTGOT
+                <span className="heading-letter inline-block">J</span>
+                <span className="heading-letter inline-block">U</span>
+                <span className="heading-letter inline-block">S</span>
+                <span className="heading-letter inline-block">T</span>
+                <span className="heading-letter inline-block">G</span>
+                <span className="heading-letter inline-block">O</span>
+                <span className="heading-letter inline-block">T</span>
               </span>
               <span className="block text-[13vw] sm:text-[11vw] md:text-[9vw] lg:text-[8vw] xl:text-[7vw]">
-                <span className="text-cyan-400">PLAYFUL</span>
-                <span className="text-purple-400">N</span>
-                <span className="text-cyan-400">RICH</span>
-                <span className="text-purple-400">.NG</span>
+                <span className="text-cyan-400 heading-letter inline-block">P</span>
+                <span className="text-cyan-400 heading-letter inline-block">L</span>
+                <span className="text-cyan-400 heading-letter inline-block">A</span>
+                <span className="text-cyan-400 heading-letter inline-block">Y</span>
+                <span className="text-cyan-400 heading-letter inline-block">F</span>
+                <span className="text-cyan-400 heading-letter inline-block">U</span>
+                <span className="text-cyan-400 heading-letter inline-block">L</span>
+                <span className="text-purple-400 heading-letter inline-block">N</span>
+                <span className="text-cyan-400 heading-letter inline-block">R</span>
+                <span className="text-cyan-400 heading-letter inline-block">I</span>
+                <span className="text-cyan-400 heading-letter inline-block">C</span>
+                <span className="text-cyan-400 heading-letter inline-block">H</span>
+                <span className="text-purple-400 heading-letter inline-block">.</span>
+                <span className="text-purple-400 heading-letter inline-block">N</span>
+                <span className="text-purple-400 heading-letter inline-block">G</span>
               </span>
             </h1>
 
             {/* SUB TEXT - Responsive */}
             <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 text-white mb-8 sm:mb-10 md:mb-14 lg:mb-16">
-              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold">C</span>
-              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold">O</span>
-              <span className="text-sm sm:text-base md:text-lg lg:text-xl font-medium text-purple-400">N</span>
-              <span className="text-sm sm:text-base md:text-lg lg:text-xl font-medium">T</span>
-              <span className="text-sm sm:text-base md:text-lg lg:text-xl font-medium">R</span>
-              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold">3</span>
-              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold">'S</span>
+              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold hover:text-purple-400 transition-colors duration-300 cursor-default">C</span>
+              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold hover:text-purple-400 transition-colors duration-300 cursor-default">O</span>
+              <span className="text-sm sm:text-base md:text-lg lg:text-xl font-medium text-purple-400 hover:text-cyan-400 transition-colors duration-300 cursor-default">N</span>
+              <span className="text-sm sm:text-base md:text-lg lg:text-xl font-medium hover:text-purple-400 transition-colors duration-300 cursor-default">T</span>
+              <span className="text-sm sm:text-base md:text-lg lg:text-xl font-medium hover:text-purple-400 transition-colors duration-300 cursor-default">R</span>
+              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold hover:text-purple-400 transition-colors duration-300 cursor-default">3</span>
+              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold hover:text-purple-400 transition-colors duration-300 cursor-default">'S</span>
 
-              {/* Nigeria Flag - Responsive Size */}
+              {/* Nigeria Flag */}
               <span
-                className="inline-block w-5 h-3 sm:w-6 sm:h-4 md:w-7 md:h-5 bg-contain bg-no-repeat ml-1 sm:ml-2"
+                className="inline-block w-5 h-3 sm:w-6 sm:h-4 md:w-7 md:h-5 bg-contain bg-no-repeat ml-1 sm:ml-2 hover:scale-110 transition-transform duration-300 cursor-pointer"
                 style={{
                   backgroundImage:
                     "url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 36 24%22%3E%3Cpath fill=%22%23008753%22 d=%22M0 0h12v24H0z%22/%3E%3Cpath fill=%22%23FFFFFF%22 d=%22M12 0h12v24H12z%22/%3E%3Cpath fill=%22%23008753%22 d=%22M24 0h12v24H24z%22/%3E%3C/svg%3E')",
@@ -202,45 +351,15 @@ export default function LandingPage() {
               />
             </div>
 
-            {/* CTA Button with Multiple Layered Glows */}
+            {/* CTA Button with Smooth Border Glow */}
             <div
               ref={buttonRef}
               className="inline-block cursor-pointer relative"
-              onMouseEnter={() => {
-                gsap.to(".btn-bg", {
-                  backgroundPosition: "100% 50%",
-                  duration: 0.8,
-                  ease: "power2.out",
-                });
-                gsap.to(buttonRef.current, {
-                  y: -12,
-                  scale: 1.05,
-                  duration: 0.4,
-                  ease: "power3.out",
-                });
-                gsap.to([glow1Ref.current, glow2Ref.current, glow3Ref.current, glow4Ref.current], {
-                  opacity: 0.8,
-                  scale: "+=0.1",
-                  duration: 0.3,
-                });
-              }}
-              onMouseLeave={() => {
-                gsap.to(".btn-bg", {
-                  backgroundPosition: "0% 50%",
-                  duration: 0.8,
-                  ease: "power2.out",
-                });
-                gsap.to(buttonRef.current, {
-                  y: 0,
-                  scale: 1,
-                  duration: 0.4,
-                  ease: "power3.out",
-                });
-              }}
-              onClick={() => navigate("/playstation")}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              onClick={handleClick}
             >
-              {/* Multiple Layered Glow Effects */}
-              {/* Glow 1 - Outer Purple Halo */}
+              {/* Layered Glow Effects */}
               <div
                 ref={glow1Ref}
                 className="absolute -inset-8 rounded-full opacity-30 blur-3xl pointer-events-none"
@@ -249,7 +368,6 @@ export default function LandingPage() {
                 }}
               />
               
-              {/* Glow 2 - Middle Pink Ring */}
               <div
                 ref={glow2Ref}
                 className="absolute -inset-6 rounded-full opacity-40 blur-2xl pointer-events-none"
@@ -258,7 +376,6 @@ export default function LandingPage() {
                 }}
               />
               
-              {/* Glow 3 - Inner Indigo Glow */}
               <div
                 ref={glow3Ref}
                 className="absolute -inset-4 rounded-full opacity-50 blur-xl pointer-events-none"
@@ -266,26 +383,74 @@ export default function LandingPage() {
                   background: "radial-gradient(circle, rgba(99, 102, 241, 0.6) 0%, rgba(99, 102, 241, 0.4) 50%, transparent 100%)",
                 }}
               />
-              
-              {/* Glow 4 - Rotating Halo Effect */}
+
+              {/* 💫 SMOOTH CONTINUOUS GLOWING BORDER - Moves from RIGHT to LEFT */}
+              <svg 
+                ref={neonLightRef}
+                className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] pointer-events-none"
+                style={{ overflow: 'visible' }}
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#a78bfa" stopOpacity="1" />
+                    <stop offset="25%" stopColor="#ec4899" stopOpacity="1" />
+                    <stop offset="50%" stopColor="#06b6d4" stopOpacity="1" />
+                    <stop offset="75%" stopColor="#8b5cf6" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#a78bfa" stopOpacity="1" />
+                  </linearGradient>
+                  
+                  <filter id="borderGlow">
+                    <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                
+                <rect
+                  x="4"
+                  y="4"
+                  width="calc(100% - 8px)"
+                  height="calc(100% - 8px)"
+                  rx="50%"
+                  ry="50%"
+                  fill="none"
+                  stroke="url(#borderGradient)"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeDasharray="200 800"
+                  pathLength="1000"
+                  filter="url(#borderGlow)"
+                  style={{
+                    opacity: 1,
+                  }}
+                />
+              </svg>
+
+              {/* Click Flash Effect */}
               <div
-                ref={glow4Ref}
-                className="absolute -inset-7 rounded-full opacity-25 blur-2xl pointer-events-none"
-                style={{
-                  background: "conic-gradient(from 0deg, rgba(147, 51, 234, 0.3), rgba(219, 39, 119, 0.3), rgba(99, 102, 241, 0.3), rgba(147, 51, 234, 0.3))",
-                }}
+                ref={clickFlashRef}
+                className="absolute inset-0 rounded-full bg-white opacity-0 pointer-events-none z-20"
               />
               
-              <button className="relative overflow-hidden rounded-full group transition-all duration-300 px-8 sm:px-10 md:px-12 lg:px-14 py-3 sm:py-3.5 md:py-4 shadow-2xl">
+              <button className="relative overflow-hidden rounded-full group transition-all duration-300 px-8 sm:px-10 md:px-12 lg:px-14 py-3 sm:py-3.5 md:py-4 shadow-2xl border-2 border-white/10">
                 {/* Gradient background */}
                 <span className="btn-bg absolute inset-0 bg-[length:200%_200%] bg-gradient-to-r from-purple-600 via-indigo-600 to-fuchsia-600 transition-all duration-700" />
 
                 {/* Inner glow */}
                 <span className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-indigo-400/20 blur-xl" />
 
-                {/* Content - Responsive */}
+                {/* Content */}
                 <span className="relative z-10 flex items-center gap-2 sm:gap-2.5 md:gap-3 text-white font-semibold tracking-widest uppercase text-xs sm:text-sm md:text-base">
-                  <PlayIcon className="play-icon w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:scale-110 drop-shadow-lg" />
+                  <PlayIcon 
+                    ref={playIconRef}
+                    className="play-icon w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 drop-shadow-lg" 
+                  />
                   PlayStation
                 </span>
 
@@ -293,9 +458,6 @@ export default function LandingPage() {
                 <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                   <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </span>
-
-                {/* Border glow */}
-                <span className="absolute inset-0 rounded-full border-2 border-white/20 group-hover:border-white/40 transition-all duration-300" />
               </button>
             </div>
           </div>

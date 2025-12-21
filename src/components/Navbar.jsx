@@ -42,23 +42,148 @@ export default function Navbar({ theme = 'dark' }) {
     setIsOpen(false);
   }, [location]);
 
-  // Navbar entrance + logo animation
+  // Navbar entrance + enhanced logo animation
   useGSAP(() => {
     if (!navRef.current || !logoRef.current) return;
 
+    // Navbar entrance
     gsap.fromTo(
       navRef.current,
       { y: -100, opacity: 0 },
       { y: 0, opacity: 1, duration: 1.2, ease: "power3.out", delay: 0.3 }
     );
 
-    // Logo floating animation
-    gsap.to(logoRef.current, {
-      y: -10,
-      duration: 2.5,
+    // Beautiful logo animation sequence - FLIP ROTATION with rotateY
+    const logoSequence = gsap.timeline({ 
+      delay: 1.5,
       repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
+    });
+
+    // 1. COIN FLIP (rotateY - side to side flip)
+    logoSequence.to(logoRef.current, {
+      rotateY: 360,
+      duration: 1.5,
+      ease: "power2.inOut",
+    });
+
+    // Reset for clean loop
+    logoSequence.set(logoRef.current, { rotateY: 0 });
+
+    // 2. ENERGETIC BOUNCE with scale
+    logoSequence.to(logoRef.current, {
+      y: -28,
+      scale: 1.15,
+      duration: 0.4,
+      ease: "power2.out",
+    });
+
+    logoSequence.to(logoRef.current, {
+      y: 0,
+      scale: 1,
+      duration: 0.6,
+      ease: "bounce.out",
+    });
+
+    // 3. QUICK PULSE
+    logoSequence.to(logoRef.current, {
+      scale: 1.1,
+      duration: 0.2,
+      ease: "power2.out",
+    });
+
+    logoSequence.to(logoRef.current, {
+      scale: 1,
+      duration: 0.25,
+      ease: "elastic.out(1, 0.5)",
+    });
+
+    // 4. PLAYFUL TILT WIGGLE (Z-axis shake)
+    logoSequence.to(logoRef.current, {
+      rotateZ: 15,
+      duration: 0.18,
+      ease: "power2.out",
+    });
+
+    logoSequence.to(logoRef.current, {
+      rotateZ: -15,
+      duration: 0.32,
+      ease: "sine.inOut",
+    });
+
+    logoSequence.to(logoRef.current, {
+      rotateZ: 10,
+      duration: 0.28,
+      ease: "sine.inOut",
+    });
+
+    logoSequence.to(logoRef.current, {
+      rotateZ: -6,
+      duration: 0.22,
+      ease: "sine.inOut",
+    });
+
+    logoSequence.to(logoRef.current, {
+      rotateZ: 0,
+      duration: 0.18,
+      ease: "power2.inOut",
+    });
+
+    // 5. SUBTLE Y-AXIS WIGGLE (slight flip wobble)
+    logoSequence.to(logoRef.current, {
+      rotateY: 20,
+      duration: 0.25,
+      ease: "power1.out",
+    });
+
+    logoSequence.to(logoRef.current, {
+      rotateY: -20,
+      duration: 0.4,
+      ease: "sine.inOut",
+    });
+
+    logoSequence.to(logoRef.current, {
+      rotateY: 12,
+      duration: 0.35,
+      ease: "sine.inOut",
+    });
+
+    logoSequence.to(logoRef.current, {
+      rotateY: 0,
+      duration: 0.3,
+      ease: "power2.inOut",
+    });
+
+    // 6. GENTLE FLOAT (breathing motion)
+    logoSequence.to(logoRef.current, {
+      y: -10,
+      scale: 1.03,
+      duration: 0.7,
+      ease: "sine.inOut",
+    });
+
+    logoSequence.to(logoRef.current, {
+      y: 0,
+      scale: 1,
+      duration: 0.7,
+      ease: "sine.inOut",
+    });
+
+    // 7. QUICK SPIN (small rotateY flip)
+    logoSequence.to(logoRef.current, {
+      rotateY: 180,
+      duration: 0.5,
+      ease: "power2.inOut",
+    });
+
+    logoSequence.to(logoRef.current, {
+      rotateY: 0,
+      duration: 0.5,
+      ease: "power2.inOut",
+    });
+
+    // 8. PAUSE before repeating
+    logoSequence.to(logoRef.current, {
+      duration: 1,
     });
   }, []);
 
@@ -167,15 +292,16 @@ export default function Navbar({ theme = 'dark' }) {
       <nav className={`w-full fixed top-0 left-0 z-50 ${bgColor} backdrop-blur-md border-b ${borderColor} transition-all duration-300`}>
         <div
           ref={navRef}
-          className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-3 sm:py-3.5 lg:py-4"
+          className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-2 sm:py-2.5 lg:py-3"
         >
-          {/* Logo - Responsive Sizing */}
+          {/* Logo - Reduced Height with Enhanced Animation */}
           <Link to="/" className="flex-shrink-0">
             <img 
               ref={logoRef} 
               src={logo} 
               alt="JGPNR Logo" 
-              className="h-14 sm:h-16 md:h-18 lg:h-20 xl:h-24 w-auto cursor-pointer drop-shadow-lg transition-transform hover:scale-105" 
+              className="h-12 sm:h-14 md:h-16 lg:h-16 xl:h-18 w-auto cursor-pointer drop-shadow-lg transition-transform hover:scale-105" 
+              style={{ transformOrigin: 'center center' }}
             />
           </Link>
 
@@ -208,7 +334,7 @@ export default function Navbar({ theme = 'dark' }) {
             {/* Cart Icon - Responsive */}
             <Link to="/cart">
               <div className="relative group">
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 md:w-13 md:h-13 lg:w-14 lg:h-14 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/5'} backdrop-blur-md border-2 ${isDark ? 'border-white/20' : 'border-black/10'} flex items-center justify-center transition-all duration-300 ${isDark ? 'hover:bg-white/20 hover:border-white/40' : 'hover:bg-black/10 hover:border-black/20'} hover:scale-110`}>
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/5'} backdrop-blur-md border-2 ${isDark ? 'border-white/20' : 'border-black/10'} flex items-center justify-center transition-all duration-300 ${isDark ? 'hover:bg-white/20 hover:border-white/40' : 'hover:bg-black/10 hover:border-black/20'} hover:scale-110`}>
                   <FaShoppingCart className={`${textColor} text-sm sm:text-base lg:text-lg`} />
                   {cartCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-amber-500 text-black text-[10px] sm:text-xs font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center animate-pulse">
@@ -222,7 +348,7 @@ export default function Navbar({ theme = 'dark' }) {
             {/* Hamburger Menu - Mobile/Tablet Only */}
             {isMobile && (
               <button
-                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center backdrop-blur-md border-2 transition-all duration-300 focus:outline-none ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center backdrop-blur-md border-2 transition-all duration-300 focus:outline-none ${
                   !isOpen
                     ? `${isDark ? "bg-white/10 border-white/20 hover:bg-white/20" : "bg-black/5 border-black/10 hover:bg-black/10"}`
                     : "bg-amber-500 border-amber-600"

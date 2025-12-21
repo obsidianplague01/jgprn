@@ -15,14 +15,14 @@ import { useCart } from '../context/CartContex';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Generate colored player data with wave effect
+
 const generatePlayerData = (ticketPrice = 9499) => {
   const colors = [
-    '#ef4444', '#f59e0b', '#10b981', '#3b82f6', 
-    '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16',
-    '#f97316', '#14b8a6', '#6366f1', '#a855f7',
-    '#ec4899', '#f43f5e', '#fb923c', '#facc15',
-    '#4ade80', '#2dd4bf', '#60a5fa', '#c084fc', '#f472b6'
+    '#1e3a8a', '#3b82f6', '#06b6d4', '#10b981', 
+    '#84cc16', '#fbbf24', '#f59e0b', '#f97316',
+    '#ef4444', '#dc2626', '#991b1b', '#7c2d12',
+    '#78350f', '#713f12', '#854d0e', '#a16207',
+    '#ca8a04', '#eab308', '#facc15', '#fde047', '#fef08a'
   ];
   
   const data = [];
@@ -36,7 +36,7 @@ const generatePlayerData = (ticketPrice = 9499) => {
     data.push({
       players: i,
       totalMoney: baseValue + wave,
-      actualTotal: baseValue, // Store actual value for tooltip
+      actualTotal: baseValue, 
       color: colors[i - 1],
       ticketPrice,
     });
@@ -80,6 +80,7 @@ const CustomTooltip = ({ active, payload }) => {
         <div className="space-y-2 text-xs text-white/90">
           <p><span className="text-amber-500">▮ </span> {data.players} {data.players === 1 ? 'Player' : 'Players'} Available</p>
           <p className="text-amber-400 font-semibold">Ticket Price: ₦{data.ticketPrice.toLocaleString()}</p>
+          <p className="text-amber-400 font-semibold">TVD: 2 days / Week</p>
           <p className="text-white/70">Arena Opens:</p>
           <p className="text-white/70 text-[10px]">Tuesday 7:30-9:30 / Friday 7:30-9:30</p>
           <p className="text-white/60 text-[10px] mt-2 border-t border-white/20 pt-2">
@@ -428,7 +429,7 @@ export default function PlayStationPage() {
         {/* Page Header */}
         <div ref={headerRef} className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extralight tracking-tighter text-white uppercase mb-3 sm:mb-4">
-            PlayStation Gaming
+            PlayStation Arena
           </h1>
           <p className="text-xs sm:text-sm tracking-[0.3em] uppercase text-white/60">
             Live Ticket Pricing
@@ -439,7 +440,7 @@ export default function PlayStationPage() {
         <div ref={introRef} className="animate-card bg-white/5 backdrop-blur-md border-2 border-white/10 rounded-2xl p-4 sm:p-6 lg:p-8 mb-8 sm:mb-12 hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/10">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-light text-white mb-4 sm:mb-6 leading-relaxed">
-              Welcome to JGPNR Play Station - the ultimate city's hub for 5-a-side football enthusiasts
+              Welcome to JGPNR Play Station - The ultimate city's hub for 5-a-side football enthusiasts
             </h2>
             
             <p className="text-sm sm:text-base text-white/80 leading-relaxed mb-4 sm:mb-6">
@@ -454,7 +455,9 @@ export default function PlayStationPage() {
                   to play, chat, and enjoy the beautiful game. Specializing in intense 5-a-side matches, we bring players 
                   from everywhere to compete in advanced, skill-based soccer.
                 </p>
-                
+                <p className="text-sm sm:text-base text-white/80 leading-relaxed">
+                  Whether you're a seasoned pro or passionate newcomer, expect a premium football experience full of excitement and camaraderie. Come meet your playmates and kick off the action
+                </p>
                 <div className="border-t-2 border-amber-500 pt-4 space-y-2">
                   <p className="text-sm font-semibold text-white uppercase tracking-wider">
                     TVD - Ticket Valid Duration
@@ -495,28 +498,17 @@ export default function PlayStationPage() {
               >
                 <defs>
                   <linearGradient id="areaGradient" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#ef4444" />
-                    <stop offset="4.76%" stopColor="#f59e0b" />
-                    <stop offset="9.52%" stopColor="#10b981" />
-                    <stop offset="14.29%" stopColor="#3b82f6" />
-                    <stop offset="19.05%" stopColor="#8b5cf6" />
-                    <stop offset="23.81%" stopColor="#ec4899" />
-                    <stop offset="28.57%" stopColor="#06b6d4" />
-                    <stop offset="33.33%" stopColor="#84cc16" />
-                    <stop offset="38.10%" stopColor="#f97316" />
-                    <stop offset="42.86%" stopColor="#14b8a6" />
-                    <stop offset="47.62%" stopColor="#6366f1" />
-                    <stop offset="52.38%" stopColor="#a855f7" />
-                    <stop offset="57.14%" stopColor="#ec4899" />
-                    <stop offset="61.90%" stopColor="#f43f5e" />
-                    <stop offset="66.67%" stopColor="#fb923c" />
-                    <stop offset="71.43%" stopColor="#facc15" />
-                    <stop offset="76.19%" stopColor="#4ade80" />
-                    <stop offset="80.95%" stopColor="#2dd4bf" />
-                    <stop offset="85.71%" stopColor="#60a5fa" />
-                    <stop offset="90.48%" stopColor="#c084fc" />
-                    <stop offset="95.24%" stopColor="#f472b6" />
-                    <stop offset="100%" stopColor="#f472b6" />
+                    <stop offset="0%" stopColor="#1e3a8a" />
+                    <stop offset="10%" stopColor="#3b82f6" />
+                    <stop offset="20%" stopColor="#06b6d4" />
+                    <stop offset="30%" stopColor="#10b981" />
+                    <stop offset="40%" stopColor="#84cc16" />
+                    <stop offset="50%" stopColor="#fbbf24" />
+                    <stop offset="60%" stopColor="#f59e0b" />
+                    <stop offset="70%" stopColor="#f97316" />
+                    <stop offset="80%" stopColor="#ef4444" />
+                    <stop offset="90%" stopColor="#dc2626" />
+                    <stop offset="100%" stopColor="#991b1b" />
                   </linearGradient>
                   
                   {/* Glow effect for the area */}

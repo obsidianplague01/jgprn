@@ -114,6 +114,16 @@
         --fs-400: 1.125rem;
     }
 }
+@media(max-width: 35em){
+    .mtImp{
+        margin-top: 5rem !important;
+    }
+}
+@media(max-width: 63.94em){
+    .mtImp{
+        margin-top: 5rem !important;
+    }
+}
 
 *,
 *::before,
