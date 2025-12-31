@@ -286,7 +286,7 @@ export default function ContactForm() {
         ref={containerRef}
         className="relative min-h-screen flex items-center justify-center bg-white px-4 sm:px-6 lg:px-12 py-20 sm:py-24 pt-32 sm:pt-36 overflow-hidden"
       >
-        {/* Custom Cursor - Desktop Only */}
+        
         <div
           ref={cursorRef}
           className="hidden lg:block fixed w-8 h-8 border-2 border-black rounded-full pointer-events-none z-50 mix-blend-difference"
@@ -296,7 +296,6 @@ export default function ContactForm() {
           }}
         />
 
-        {/* Background Grid Pattern */}
         <div className="absolute inset-0 opacity-[0.02]">
           <div
             className="w-full h-full"
@@ -308,7 +307,7 @@ export default function ContactForm() {
         </div>
 
         <div className="w-full max-w-4xl relative z-10">
-          {/* Section Header */}
+         
           <div className="text-center mb-12 sm:mb-16" style={{ perspective: '1000px' }}>
             <div className="overflow-hidden mb-4 sm:mb-6">
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-[0.2em] uppercase">
@@ -327,13 +326,11 @@ export default function ContactForm() {
               Let's create something together
             </p>
             
-            {/* Decorative Line Animation */}
-            <div className="w-20 sm:w-24 h-[1px] bg-black mx-auto mt-4 sm:mt-6 origin-center">
+            <div className="w-20 sm:w-24 h-px bg-black mx-auto mt-4 sm:mt-6 origin-center">
               <div className="h-full bg-black animate-pulse" />
             </div>
           </div>
 
-          {/* Contact Form */}
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-8 sm:space-y-10 relative">
             
             {/* Submit Error Message */}
@@ -457,7 +454,7 @@ export default function ContactForm() {
           </form>
 
           {/* Bottom Decorative Line */}
-          <div className="mt-16 sm:mt-20 h-[1px] bg-gradient-to-r from-transparent via-black/20 to-transparent" />
+          <div className="mt-16 sm:mt-20 h-px bg-linear-to-r from-transparent via-black/20 to-transparent" />
         </div>
       </section>
     </>

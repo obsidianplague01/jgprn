@@ -67,26 +67,23 @@ export default function ComingSoon({ pageName = "This Page" }) {
     <>
       <Navbar theme="light" />
       <div ref={containerRef} className="relative min-h-screen bg-black overflow-hidden">
-        {/* Animated Background */}
+
         <div className="absolute inset-0">
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
+
+          <div className="absolute inset-0 bg-linear-to-br from-black via-gray-900 to-black" />
           
-          {/* Animated Blobs */}
           <div className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse" 
               style={{ animationDuration: '4s' }} />
           <div className="absolute bottom-1/4 right-1/4 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-white/5 rounded-full blur-3xl animate-pulse" 
               style={{ animationDuration: '6s', animationDelay: '2s' }} />
           
-          {/* Grid Pattern */}
           <div className="absolute inset-0 opacity-[0.02]">
             <div className="w-full h-full" />
           </div>
         </div>
 
-        {/* Content */}
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 lg:px-12 py-24 sm:py-28 md:py-32">
-          {/* Main Title */}
+         
           <h1 
             ref={titleRef}
             className="text-[14vw] sm:text-[12vw] md:text-[10vw] lg:text-[8vw] xl:text-[6vw] font-extralight tracking-tighter leading-[0.9] text-white text-center uppercase mb-6 sm:mb-8"
@@ -95,7 +92,6 @@ export default function ComingSoon({ pageName = "This Page" }) {
             {splitIntoWords("Coming Soon")}
           </h1>
 
-          {/* Subtitle */}
           <div ref={subtitleRef} className="text-center max-w-2xl mb-8 sm:mb-10 md:mb-12 px-4">
             <p className="text-base sm:text-lg md:text-xl text-white/70 font-light tracking-wide mb-3 sm:mb-4">
               {pageName} is currently under construction
@@ -105,16 +101,13 @@ export default function ComingSoon({ pageName = "This Page" }) {
             </p>
           </div>
 
-          {/* Decorative Line */}
-          <div className="w-24 sm:w-32 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent mb-8 sm:mb-10 md:mb-12" />
+          <div className="w-24 sm:w-32 h-px bg-linear-to-r from-transparent via-white/40 to-transparent mb-8 sm:mb-10 md:mb-12" />
 
-          {/* Call to Action Button */}
           <Link to="/" ref={buttonRef}>
             <button className="group relative px-8 sm:px-10 md:px-12 py-3 sm:py-3.5 md:py-4 bg-white/5 backdrop-blur-sm border-2 border-white/20 text-white uppercase tracking-[0.2em] sm:tracking-[0.25em] md:tracking-[0.3em] text-xs sm:text-sm font-light transition-all duration-500 hover:bg-white hover:text-black hover:border-white overflow-hidden">
-              {/* Button background animation */}
+              
               <span className="absolute inset-0 bg-white transform scale-x-0 origin-left transition-transform duration-500 group-hover:scale-x-100" />
               
-              {/* Button text */}
               <span className="relative z-10 flex items-center gap-2 sm:gap-3">
                 <svg className="w-3 h-3 sm:w-4 sm:h-4 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -124,7 +117,6 @@ export default function ComingSoon({ pageName = "This Page" }) {
             </button>
           </Link>
 
-          {/* Additional Info */}
           <div className="mt-12 sm:mt-14 md:mt-16 text-center">
             <p className="text-[10px] sm:text-xs text-white/40 tracking-[0.2em] uppercase">
               Stay tuned for updates
@@ -132,7 +124,6 @@ export default function ComingSoon({ pageName = "This Page" }) {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="relative z-10">
           <Footer />
         </div>

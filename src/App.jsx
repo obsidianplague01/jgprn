@@ -1,19 +1,19 @@
+// src/App.jsx
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/all';
 
-// Context
-import { CartProvider } from './context/CartContex';
+import { CartProvider } from './context/CartContext';
 
-// Components
 import ScrollToTopButton from './components/ScrollToTopButton';
 import Loader from './components/Loader';
 
-// Pages
 import LandingPage from './pages/LandingPage';
 import PlayStationPage from './pages/PlayStationPage';
 import CheckoutPage from './pages/CheckoutPage';
+import ManualPaymentPage from './pages/ManualPaymentPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import Contact from './pages/Contact';
 import ComingSoon from './pages/ComingSoon';
 
@@ -25,12 +25,10 @@ function App() {
   return (
     <CartProvider>
       <Router>
-        {/* Loader */}
         {loading && <Loader onLoadComplete={() => setLoading(false)} />}
 
         {!loading && (
           <>
-            {/* Routes */}
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/shop" element={<ComingSoon pageName="Shop" />} />
@@ -39,11 +37,12 @@ function App() {
               <Route path="/discover" element={<ComingSoon pageName="Discover" />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/cart" element={<CheckoutPage />} />
+              <Route path="/manual-payment" element={<ManualPaymentPage />} />
+              <Route path="/payment-success" element={<PaymentSuccessPage />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="*" element={<ComingSoon pageName="Page" />} />
             </Routes>
 
-            {/* Scroll to Top - Shows on all pages */}
             <ScrollToTopButton />
           </>
         )}

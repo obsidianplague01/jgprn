@@ -64,7 +64,6 @@ export default function LandingPage() {
         "-=0.8"
       );
 
-    // 🌟 Multiple layered glow animations
     gsap.to(glow1Ref.current, {
       opacity: 0.4,
       scale: 1.3,
@@ -94,7 +93,6 @@ export default function LandingPage() {
       delay: 1,
     });
 
-    // 🔄 Button gradient animation
     gsap.to(".btn-bg", {
       backgroundPosition: "200% 50%",
       duration: 6,
@@ -103,14 +101,13 @@ export default function LandingPage() {
       ease: "sine.inOut",
     });
 
-    // 💫 SMOOTH CONTINUOUS BORDER GLOW ANIMATION - Moves from RIGHT to LEFT
     const neonRect = neonLightRef.current?.querySelector('rect');
     if (neonRect) {
-      // Start from right side (higher offset) and move to left (lower offset)
+      
       neonAnimationRef.current = gsap.fromTo(neonRect,
-        { strokeDashoffset: 1000 }, // Start position (right)
+        { strokeDashoffset: 1000 }, 
         { 
-          strokeDashoffset: 0, // End position (left)
+          strokeDashoffset: 0, 
           duration: 6,
           repeat: -1,
           ease: "none",
@@ -118,7 +115,7 @@ export default function LandingPage() {
       );
     }
 
-    // ✨ Play icon complex continuous animation sequence - NO PAUSE
+   
     const playIconTimeline = gsap.timeline({ repeat: -1 });
     
     playIconTimeline
@@ -141,7 +138,7 @@ export default function LandingPage() {
         ease: "power2.inOut"
       });
 
-    // 🎭 Subtle text letter animations
+    
     const headingSpans = document.querySelectorAll('.heading-letter');
     headingSpans.forEach((span, i) => {
       gsap.to(span, {
@@ -154,7 +151,6 @@ export default function LandingPage() {
       });
     });
 
-    // 🌊 Reduced parallax on mouse move
     const handleMouseMove = (e) => {
       const { clientX, clientY } = e;
       const centerX = window.innerWidth / 2;
@@ -196,7 +192,6 @@ export default function LandingPage() {
       ease: "power2.out",
     });
 
-    // Enhanced play icon animation on hover
     gsap.to(playIconRef.current, {
       opacity: 1,
       scale: 1.6,
@@ -225,7 +220,6 @@ export default function LandingPage() {
     gsap.to(glow2Ref.current, { opacity: 0.5, scale: 1.2, duration: 0.5 });
     gsap.to(glow3Ref.current, { opacity: 0.6, scale: 1.15, duration: 0.5 });
 
-    // Let the play icon continue its timeline animation
     gsap.to(playIconRef.current, {
       x: 0,
       duration: 0.5,
@@ -248,7 +242,6 @@ export default function LandingPage() {
       ease: "power2.inOut",
     });
 
-    // Play icon click animation
     gsap.to(playIconRef.current, {
       scale: 0.8,
       rotation: "+=180",
@@ -274,9 +267,8 @@ export default function LandingPage() {
     <>
       <Navbar theme="light" cartCount={0} />
 
-      {/* HERO SECTION - 100vh */}
       <section className="relative w-full h-screen">
-        {/* Video Background - Fixed position */}
+      
         <div className="absolute inset-0 w-full h-full">
           <video
             ref={videoRef}
@@ -289,20 +281,17 @@ export default function LandingPage() {
           />
         </div>
 
-        {/* Overlay */}
         <div
           ref={overlayRef}
-          className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/65"
+          className="absolute inset-0 bg-linear-to-b from-black/50 via-black/40 to-black/65"
         />
 
-        {/* Hero Content */}
         <div className="absolute inset-0 flex items-center z-10 px-4 sm:px-6 md:px-12 lg:px-16 xl:px-24">
           <div
             ref={heroTextRef}
             className="max-w-7xl w-full"
           >
-            {/* MAIN HEADING - Responsive Typography */}
-            <h1 className="heading-text text-white leading-[0.9] sm:leading-[0.92] md:leading-[0.95] font-bold tracking-[0.08em] sm:tracking-[0.1em] md:tracking-[0.12em] mb-4 sm:mb-6 md:mb-8">
+            <h1 className="heading-text text-white leading-[0.9] sm:leading-[0.92] md:leading-[0.95] font-bold tracking-[0.08em] sm:tracking-widest md:tracking-[0.12em] mb-4 sm:mb-6 md:mb-8">
               <span className="block text-[13vw] sm:text-[11vw] md:text-[9vw] lg:text-[8vw] xl:text-[7vw]">
                 <span className="heading-letter inline-block">J</span>
                 <span className="heading-letter inline-block">U</span>
@@ -331,7 +320,6 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            {/* SUB TEXT - Responsive */}
             <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 text-white mb-8 sm:mb-10 md:mb-14 lg:mb-16">
               <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold hover:text-purple-400 transition-colors duration-300 cursor-default">C</span>
               <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold hover:text-purple-400 transition-colors duration-300 cursor-default">O</span>
@@ -351,7 +339,6 @@ export default function LandingPage() {
               />
             </div>
 
-            {/* CTA Button with Smooth Border Glow */}
             <div
               ref={buttonRef}
               className="inline-block cursor-pointer relative"
@@ -359,7 +346,7 @@ export default function LandingPage() {
               onMouseLeave={handleMouseLeave}
               onClick={handleClick}
             >
-              {/* Layered Glow Effects */}
+            
               <div
                 ref={glow1Ref}
                 className="absolute -inset-8 rounded-full opacity-30 blur-3xl pointer-events-none"
@@ -384,7 +371,6 @@ export default function LandingPage() {
                 }}
               />
 
-              {/* 💫 SMOOTH CONTINUOUS GLOWING BORDER - Moves from RIGHT to LEFT */}
               <svg 
                 ref={neonLightRef}
                 className="absolute -inset-1 w-[calc(100%+8px)] h-[calc(100%+8px)] pointer-events-none"
@@ -432,20 +418,18 @@ export default function LandingPage() {
                 />
               </svg>
 
-              {/* Click Flash Effect */}
+              
               <div
                 ref={clickFlashRef}
                 className="absolute inset-0 rounded-full bg-white opacity-0 pointer-events-none z-20"
               />
               
               <button className="relative overflow-hidden rounded-full group transition-all duration-300 px-8 sm:px-10 md:px-12 lg:px-14 py-3 sm:py-3.5 md:py-4 shadow-2xl border-2 border-white/10">
-                {/* Gradient background */}
-                <span className="btn-bg absolute inset-0 bg-[length:200%_200%] bg-gradient-to-r from-purple-600 via-indigo-600 to-fuchsia-600 transition-all duration-700" />
+                
+                <span className="btn-bg absolute inset-0 bg-size[200%_200%] bg-linear-to-r from-purple-600 via-indigo-600 to-fuchsia-600 transition-all duration-700" />
 
-                {/* Inner glow */}
-                <span className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-indigo-400/20 blur-xl" />
+                <span className="absolute inset-0 bg-linear-to-r from-purple-400/20 via-pink-400/20 to-indigo-400/20 blur-xl" />
 
-                {/* Content */}
                 <span className="relative z-10 flex items-center gap-2 sm:gap-2.5 md:gap-3 text-white font-semibold tracking-widest uppercase text-xs sm:text-sm md:text-base">
                   <PlayIcon 
                     ref={playIconRef}
@@ -454,16 +438,14 @@ export default function LandingPage() {
                   PlayStation
                 </span>
 
-                {/* Hover shine effect */}
                 <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  <span className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Film Grain Effect */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
           <div className="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')]" />
         </div>

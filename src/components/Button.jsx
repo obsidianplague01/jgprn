@@ -245,7 +245,7 @@ export default function Button({
 
       {/* Shine effect on hover */}
       <div className="absolute inset-0 z-30 pointer-events-none overflow-hidden">
-        <div className="shine absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
+        <div className="shine absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent skew-x-12" />
       </div>
     </button>
   );

@@ -5,7 +5,7 @@ import { Bars3BottomLeftIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { FaInstagram, FaShoppingCart } from "react-icons/fa";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { useCart } from "../context/CartContex";
+import { useCart } from "../context/CartContext";
 
 export default function Navbar({ theme = 'dark' }) {
   const { cartCount } = useCart();
@@ -295,7 +295,7 @@ export default function Navbar({ theme = 'dark' }) {
           className="flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-2 sm:py-2.5 lg:py-3"
         >
           {/* Logo - Reduced Height with Enhanced Animation */}
-          <Link to="/" className="flex-shrink-0">
+          <Link to="/" className="shrink-0">
             <img 
               ref={logoRef} 
               src={logo} 
@@ -314,7 +314,7 @@ export default function Navbar({ theme = 'dark' }) {
                 className={`${textColor} text-xs lg:text-sm xl:text-base tracking-wider uppercase font-light ${hoverColor} transition-all duration-300 hover:tracking-widest relative group`}
               >
                 {item.name}
-                <span className={`absolute bottom-0 left-0 w-0 h-[2px] ${isDark ? 'bg-amber-500' : 'bg-amber-600'} transition-all duration-300 group-hover:w-full`} />
+                <span className={`absolute bottom-0 left-0 w-0 h-0.5 ${isDark ? 'bg-amber-500' : 'bg-amber-600'} transition-all duration-300 group-hover:w-full`} />
               </Link>
             ))}
             
@@ -371,7 +371,7 @@ export default function Navbar({ theme = 'dark' }) {
       {isVisible && (
         <div 
           ref={menuRef} 
-          className="fixed inset-0 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 z-40 md:hidden overflow-hidden"
+          className="fixed inset-0 bg-linear-to-br from-amber-400 via-amber-500 to-amber-600 z-40 md:hidden overflow-hidden"
         >
           {/* Animated Blobs */}
           <div className="menu-blob absolute inset-0 flex items-center justify-center opacity-15 pointer-events-none">

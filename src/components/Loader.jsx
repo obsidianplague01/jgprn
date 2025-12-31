@@ -197,25 +197,23 @@ export default function Loader({ onLoadComplete }) {
         {/* Glow effect under progress bar */}
         <div 
           ref={glowRef}
-          className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 via-amber-500/30 to-cyan-500/20 blur-xl rounded-full opacity-0"
+          className="absolute -inset-2 bg-linear-to-r from-purple-600/20 via-amber-500/30 to-cyan-500/20 blur-xl rounded-full opacity-0"
         />
         
-        {/* Background Bar */}
-        <div className="relative h-0.5 sm:h-[2px] bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
-          {/* Progress Fill with gradient */}
+     
+        <div className="relative h-0.5 sm:h-0.5 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
+         
           <div
             ref={progressRef}
-            className="h-full bg-gradient-to-r from-purple-500 via-amber-500 to-cyan-500 origin-left relative"
+            className="h-full bg-linear-to-r from-purple-500 via-amber-500 to-cyan-500 origin-left relative"
             style={{ transform: 'scaleX(0)' }}
           >
-            {/* Shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" />
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent animate-shimmer" />
           </div>
         </div>
 
-        {/* Progress Percentage with Circle Spinner */}
         <div className="flex items-center justify-center mt-4 sm:mt-5 md:mt-6 gap-2 sm:gap-3">
-          {/* Circular Spinner */}
+          
           <div className="relative w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
             <svg
               ref={circleRef}
@@ -250,21 +248,18 @@ export default function Loader({ onLoadComplete }) {
             </svg>
           </div>
 
-          {/* Percentage Text */}
           <div className="progress-text text-white/80 text-xs sm:text-sm md:text-base lg:text-lg font-light tracking-[0.2em] sm:tracking-[0.25em] md:tracking-[0.3em]">
             {progress}%
           </div>
         </div>
 
-        {/* Loading Text */}
         <div className="text-center mt-3 sm:mt-4 md:mt-5">
           <p className="text-[10px] sm:text-xs md:text-sm text-white/40 uppercase tracking-[0.2em] sm:tracking-[0.25em] md:tracking-[0.3em] font-light">
-            Loading Experience
+            Loading...
           </p>
         </div>
       </div>
 
-      {/* Animated Dots Indicator */}
       <div className="absolute bottom-8 sm:bottom-10 md:bottom-12 lg:bottom-16 flex gap-1.5 sm:gap-2">
         {[0, 1, 2].map((i) => (
           <div
@@ -278,10 +273,8 @@ export default function Loader({ onLoadComplete }) {
         ))}
       </div>
 
-      {/* Film Grain Effect */}
       <div className="film-grain pointer-events-none" />
 
-      {/* Scan line effect */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-30"
         style={{

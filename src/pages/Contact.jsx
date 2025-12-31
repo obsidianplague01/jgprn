@@ -4,7 +4,7 @@ import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 
 export default function ContactPage() {
-  // Scroll to top on page load
+  
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -13,13 +13,10 @@ export default function ContactPage() {
     <>
       <Navbar theme="dark" />
       <div className="relative bg-white">
-          {/* Add spacing for navbar */}
           <div className="h-20 sm:h-24 md:h-28" />
           
-          {/* Contact Form */}
           <ContactForm />
 
-          {/* Footer */}
           <Footer />
       </div>
     </>

@@ -11,7 +11,7 @@ import Footer from '../components/Footer';
 import Button from '../components/Button';
 import FormInput from '../components/forms/FormInput';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
-import { useCart } from '../context/CartContex';
+import { useCart } from '../context/CartContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -408,8 +408,7 @@ export default function PlayStationPage() {
     <div className="min-h-screen relative overflow-hidden">
       <Navbar theme="light" />
       
-      {/* Animated Background with floating blobs */}
-      <div className="fixed inset-0 bg-gradient-to-br from-black via-gray-900 to-black z-0">
+      <div className="fixed inset-0 bg-linear-to-br from-black via-gray-900 to-black z-0">
         <div className="blob-1 absolute top-1/4 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse" 
             style={{ animationDuration: '4s' }} />
         <div className="blob-2 absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" 
