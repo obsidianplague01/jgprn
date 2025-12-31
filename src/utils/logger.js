@@ -7,7 +7,7 @@ const LOG_LEVELS = {
   DEBUG: 'DEBUG',
 };
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = import.meta.env.PROD;
 
 class Logger {
   constructor() {
@@ -30,11 +30,8 @@ class Logger {
     const logEntry = this.formatMessage(level, message, data);
 
     if (!isProd || level === LOG_LEVELS.ERROR) {
-      console[level.toLowerCase()] || console.log(
-        `[${logEntry.timestamp}] ${level}:`,
-        message,
-        data
-      );
+      const consoleMethod = console[level.toLowerCase()] || console.log;
+      consoleMethod(`[${logEntry.timestamp}] ${level}:`, message, data);
     }
 
     this.logs.push(logEntry);

@@ -1,4 +1,4 @@
-// PlayStationPage.jsx - Enhanced with Wave Chart & Micro-animations
+// src/pages/PlayStationPage.jsx
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
@@ -12,11 +12,13 @@ import Button from '../components/Button';
 import FormInput from '../components/forms/FormInput';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useCart } from '../context/CartContext';
+import { getTicketPrice } from '../config/pricing';
+import { sanitizeFormData, isValidFormData } from '../utils/sanitize';
+import { logPaymentEvent } from '../utils/logger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-
-const generatePlayerData = (ticketPrice = 9499) => {
+const generatePlayerData = (ticketPrice = 6499) => {
   const colors = [
     '#1e3a8a', '#3b82f6', '#06b6d4', '#10b981', 
     '#84cc16', '#fbbf24', '#f59e0b', '#f97316',
@@ -27,9 +29,8 @@ const generatePlayerData = (ticketPrice = 9499) => {
   
   const data = [];
   for (let i = 1; i <= 21; i++) {
-    // Add wave effect using sine wave
     const baseValue = ticketPrice * i;
-    const waveAmplitude = ticketPrice * 0.08; // 8% variation
+    const waveAmplitude = ticketPrice * 0.08;
     const waveFrequency = 0.5;
     const wave = Math.sin(i * waveFrequency) * waveAmplitude;
     
@@ -44,7 +45,6 @@ const generatePlayerData = (ticketPrice = 9499) => {
   return data;
 };
 
-// Custom Tooltip with floating animation
 const CustomTooltip = ({ active, payload }) => {
   const tooltipRef = useRef(null);
 
@@ -56,7 +56,6 @@ const CustomTooltip = ({ active, payload }) => {
         { scale: 1, opacity: 1, y: 0, duration: 0.3, ease: 'back.out(2)' }
       );
       
-      // Floating animation
       gsap.to(tooltipRef.current, {
         y: -5,
         duration: 1.5,
@@ -109,10 +108,11 @@ export default function PlayStationPage() {
   
   const [errors, setErrors] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
-  const [ticketPrice] = useState(9499);
+  const [ticketPrice, setTicketPrice] = useState(6499);
   const [showMore, setShowMore] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [isPriceLoading, setIsPriceLoading] = useState(true);
   
   const chartRef = useRef(null);
   const formRef = useRef(null);
@@ -122,9 +122,22 @@ export default function PlayStationPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const data = generatePlayerData(ticketPrice);
-    setChartData(data);
-  }, [ticketPrice]);
+    const fetchPrice = async () => {
+      setIsPriceLoading(true);
+      try {
+        const price = await getTicketPrice();
+        setTicketPrice(price);
+        const data = generatePlayerData(price);
+        setChartData(data);
+      } catch (error) {
+        console.error('Failed to load ticket price:', error);
+      } finally {
+        setIsPriceLoading(false);
+      }
+    };
+
+    fetchPrice();
+  }, []);
 
   useEffect(() => {
     setTotalPrice(ticketPrice * formData.tickets);
@@ -134,7 +147,6 @@ export default function PlayStationPage() {
     window.scrollTo(0, 0);
 
     const ctx = gsap.context(() => {
-      // Header animations with stagger
       gsap.from(headerRef.current.children, {
         opacity: 0,
         y: 60,
@@ -147,7 +159,6 @@ export default function PlayStationPage() {
         }
       });
 
-      // Intro card with scale
       gsap.from(introRef.current, {
         opacity: 0,
         y: 40,
@@ -160,7 +171,6 @@ export default function PlayStationPage() {
         }
       });
 
-      // Chart with rotation + scale
       gsap.from(chartRef.current, {
         opacity: 0,
         y: 100,
@@ -174,7 +184,6 @@ export default function PlayStationPage() {
         },
       });
 
-      // Form with 3D effect
       gsap.from(formRef.current, {
         opacity: 0,
         y: 100,
@@ -187,7 +196,6 @@ export default function PlayStationPage() {
         },
       });
 
-      // Floating animation for price display
       if (priceDisplayRef.current) {
         gsap.to(priceDisplayRef.current, {
           y: -10,
@@ -198,7 +206,6 @@ export default function PlayStationPage() {
         });
       }
 
-      // Micro-animations for cards
       gsap.utils.toArray('.animate-card').forEach((card, i) => {
         gsap.from(card, {
           opacity: 0,
@@ -212,7 +219,6 @@ export default function PlayStationPage() {
           }
         });
 
-        // Add hover scale animation
         card.addEventListener('mouseenter', () => {
           gsap.to(card, {
             scale: 1.02,
@@ -234,7 +240,6 @@ export default function PlayStationPage() {
     return () => ctx.revert();
   }, []);
 
-  // Micro-animation for background blobs
   useEffect(() => {
     const blob1 = document.querySelector('.blob-1');
     const blob2 = document.querySelector('.blob-2');
@@ -328,14 +333,12 @@ export default function PlayStationPage() {
     const newTickets = Math.max(1, Math.min(20, formData.tickets + increment));
     setFormData({ ...formData, tickets: newTickets });
 
-    // Enhanced animation for ticket count
     gsap.fromTo(
       '.ticket-count',
       { scale: 1.5, color: '#f59e0b', rotateY: 360 },
       { scale: 1, color: '#fff', rotateY: 0, duration: 0.6, ease: 'back.out(2)' }
     );
 
-    // Pulse animation for total price
     gsap.fromTo(
       '.total-price',
       { scale: 1.1, color: '#fbbf24' },
@@ -345,7 +348,6 @@ export default function PlayStationPage() {
 
   const handleBuyNow = async () => {
     if (!validateForm()) {
-      // Enhanced shake animation
       gsap.to(formRef.current, {
         x: [-15, 15, -15, 15, -10, 10, 0],
         duration: 0.6,
@@ -364,11 +366,17 @@ export default function PlayStationPage() {
       return;
     }
 
+    const sanitized = sanitizeFormData(formData);
+    
+    if (!isValidFormData(sanitized)) {
+      setSubmitError('Invalid form data. Please check your inputs.');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      // Success animation sequence
       const tl = gsap.timeline();
       
       tl.to(formRef.current, {
@@ -384,12 +392,17 @@ export default function PlayStationPage() {
       }, '-=0.2')
       .call(() => {
         const cartItem = {
-          ...formData,
+          ...sanitized,
           ticketPrice,
           totalPrice,
         };
         
         addToCart(cartItem);
+        logPaymentEvent('ticket_added_to_cart', {
+          tickets: sanitized.tickets,
+          totalPrice,
+        });
+        
         navigate('/checkout');
       });
     } catch (error) {
@@ -408,7 +421,7 @@ export default function PlayStationPage() {
     <div className="min-h-screen relative overflow-hidden">
       <Navbar theme="light" />
       
-      <div className="fixed inset-0 bg-linear-to-br from-black via-gray-900 to-black z-0">
+      <div className="fixed inset-0 bg-gradient-to-br from-black via-gray-900 to-black z-0">
         <div className="blob-1 absolute top-1/4 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse" 
             style={{ animationDuration: '4s' }} />
         <div className="blob-2 absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" 
@@ -422,10 +435,8 @@ export default function PlayStationPage() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 pt-24 sm:pt-28 lg:pt-32">
         
-        {/* Page Header */}
         <div ref={headerRef} className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extralight tracking-tighter text-white uppercase mb-3 sm:mb-4">
             PlayStation Arena
@@ -435,7 +446,6 @@ export default function PlayStationPage() {
           </p>
         </div>
 
-        {/* Introduction Section */}
         <div ref={introRef} className="animate-card bg-white/5 backdrop-blur-md border-2 border-white/10 rounded-2xl p-4 sm:p-6 lg:p-8 mb-8 sm:mb-12 hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/10">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-light text-white mb-4 sm:mb-6 leading-relaxed">
@@ -480,7 +490,6 @@ export default function PlayStationPage() {
           </div>
         </div>
 
-        {/* Chart Section with Wave */}
         <div 
           ref={chartRef} 
           className="animate-card bg-white/5 backdrop-blur-md border-2 border-white/10 rounded-2xl p-4 sm:p-6 lg:p-10 mb-8 sm:mb-12 hover:border-white/20 transition-all duration-500 shadow-2xl hover:shadow-amber-500/10"
@@ -510,7 +519,6 @@ export default function PlayStationPage() {
                     <stop offset="100%" stopColor="#991b1b" />
                   </linearGradient>
                   
-                  {/* Glow effect for the area */}
                   <filter id="glow">
                     <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
                     <feMerge>
@@ -548,14 +556,15 @@ export default function PlayStationPage() {
           </div>
 
           <div ref={priceDisplayRef} className="mt-6 sm:mt-8 text-center">
-            <p className="text-xs sm:text-sm text-white/60 uppercase tracking-wider mb-2">Current Ticket Price (Fixed)</p>
+            <p className="text-xs sm:text-sm text-white/60 uppercase tracking-wider mb-2">
+              {isPriceLoading ? 'Loading Price...' : 'Current Ticket Price (Fixed)'}
+            </p>
             <p className="text-3xl sm:text-4xl lg:text-5xl font-light text-amber-500">
               ₦{ticketPrice.toLocaleString()}
             </p>
           </div>
         </div>
 
-        {/* Ticket Form */}
         <div 
           ref={formRef} 
           className="animate-card bg-white/5 backdrop-blur-md border-2 border-white/10 rounded-2xl p-4 sm:p-6 lg:p-10 hover:border-white/20 transition-all duration-500 shadow-2xl hover:shadow-amber-500/10"
@@ -571,7 +580,6 @@ export default function PlayStationPage() {
           )}
 
           <div className="space-y-4 sm:space-y-6">
-            {/* First Name & Last Name */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="form-field">
                 <FormInput
@@ -606,7 +614,6 @@ export default function PlayStationPage() {
               </div>
             </div>
 
-            {/* Email & Phone */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="form-field">
                 <FormInput
@@ -643,7 +650,6 @@ export default function PlayStationPage() {
               </div>
             </div>
 
-            {/* Location & WhatsApp */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="form-field">
                 <FormInput
@@ -678,7 +684,6 @@ export default function PlayStationPage() {
               </div>
             </div>
 
-            {/* Ticket Quantity Selector */}
             <div className="form-field">
               <label className="block text-xs sm:text-sm text-white/70 uppercase tracking-wider mb-3 sm:mb-4">
                 Number of Tickets
@@ -704,7 +709,6 @@ export default function PlayStationPage() {
               </div>
             </div>
 
-            {/* Total Price Display */}
             <div className="bg-amber-500/10 border-2 border-amber-500/30 rounded-lg p-4 sm:p-6 mt-6 sm:mt-8 hover:border-amber-500/50 transition-all duration-300 backdrop-blur-sm hover:bg-amber-500/15">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
                 <span className="text-sm sm:text-base text-white/70 uppercase tracking-wider">Total Amount:</span>
@@ -714,16 +718,15 @@ export default function PlayStationPage() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <Button 
               variant="accent" 
               size="lg" 
               fullWidth 
               onClick={handleBuyNow} 
-              disabled={isSubmitting}
+              disabled={isSubmitting || isPriceLoading}
               className="mt-4 sm:mt-6"
             >
-              {isSubmitting ? 'Processing...' : 'Buy Now'}
+              {isSubmitting ? 'Processing...' : isPriceLoading ? 'Loading...' : 'Buy Now'}
             </Button>
           </div>
         </div>

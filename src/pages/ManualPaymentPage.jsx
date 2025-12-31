@@ -5,13 +5,16 @@ import gsap from 'gsap';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
-import FormInput from '../components/forms/FormInput';
 import { useCart } from '../context/CartContext';
+import { submitPayment } from '../utils/api';
+import { logPaymentEvent } from '../utils/logger';
+import PaymentModal from '../components/PaymentModal';
+
 
 const BANK_DETAILS = {
   bankName: 'Access Bank',
-  accountName: 'JGPNR Nigeria Limited',
-  accountNumber: '0123456789'
+  accountName: 'Clement Omachi',
+  accountNumber: '0769091903'
 };
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -22,9 +25,14 @@ export default function ManualPaymentPage() {
   const { cartItems, grandTotal, clearCart } = useCart();
   const [receipt, setReceipt] = useState(null);
   const [receiptPreview, setReceiptPreview] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
+  
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    status: 'loading',
+    message: '',
+  });
+
   const containerRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -126,7 +134,7 @@ Receipt attached.
     `.trim();
   };
 
-  const submitPayment = async () => {
+  const handleSubmitPayment = async () => {
     if (!receipt) {
       setError('Please upload your payment receipt');
       gsap.to(fileInputRef.current?.closest('.upload-section'), {
@@ -136,33 +144,33 @@ Receipt attached.
       return;
     }
 
-    setIsSubmitting(true);
+    setModalState({
+      isOpen: true,
+      status: 'loading',
+      message: 'Processing your payment submission...',
+    });
+
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append('receipt', receipt);
-      formData.append('orderDetails', JSON.stringify(cartItems));
-      formData.append('grandTotal', grandTotal);
-      formData.append('summary', formatOrderSummary());
+      const paymentData = {
+        receipt,
+        orderDetails: cartItems,
+        grandTotal,
+        summary: formatOrderSummary(),
+      };
 
-      const response = await fetch('/api/payments/submit-manual', {
-        method: 'POST',
-        body: formData,
+      await submitPayment(paymentData);
+
+      logPaymentEvent('payment_submitted', {
+        totalAmount: grandTotal,
+        itemCount: cartItems.length,
       });
 
-      if (!response.ok) {
-        throw new Error('Payment submission failed');
-      }
-
-      setSuccess(true);
-      
-      gsap.to('.success-animation', {
-        scale: 1.1,
-        duration: 0.6,
-        yoyo: true,
-        repeat: 1,
-        ease: 'power2.inOut',
+      setModalState({
+        isOpen: true,
+        status: 'success',
+        message: 'Your payment has been submitted successfully! Our team will contact you shortly via email or WhatsApp to confirm your tickets.',
       });
 
       setTimeout(() => {
@@ -170,15 +178,18 @@ Receipt attached.
         navigate('/payment-success');
       }, 3000);
 
-    } catch (err) {
-      console.error('Payment submission error:', err);
-      setError('Failed to submit payment. Please try again or contact support.');
-      setIsSubmitting(false);
+    } catch (apiError) {
+      console.error('Payment submission error:', apiError);
+      
+      logPaymentEvent('payment_failed', {
+        totalAmount: grandTotal,
+        error: apiError.message,
+      });
 
-      gsap.from('.error-message', {
-        opacity: 0,
-        y: -10,
-        duration: 0.3,
+      setModalState({
+        isOpen: true,
+        status: 'error',
+        message: apiError.message || 'Failed to submit payment. Please try again or contact support.',
       });
     }
   };
@@ -189,6 +200,12 @@ Receipt attached.
       if (btn) {
         const originalText = btn.textContent;
         btn.textContent = 'Copied!';
+        
+        gsap.fromTo(btn, 
+          { scale: 1.2, backgroundColor: '#10b981' },
+          { scale: 1, backgroundColor: '', duration: 0.3 }
+        );
+
         setTimeout(() => {
           btn.textContent = originalText;
         }, 2000);
@@ -196,30 +213,21 @@ Receipt attached.
     });
   };
 
-  if (success) {
-    return (
-      <>
-        <Navbar theme="dark" />
-        <div className="min-h-screen bg-white flex items-center justify-center px-4">
-          <div className="text-center success-animation">
-            <div className="w-24 h-24 mx-auto mb-6 border-4 border-green-600 rounded-full flex items-center justify-center">
-              <svg className="w-12 h-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-3xl font-light mb-4">Payment Submitted!</h2>
-            <p className="text-gray-600 mb-2">Your payment is being processed.</p>
-            <p className="text-sm text-gray-500">You will be contacted shortly.</p>
-          </div>
-        </div>
-      </>
-    );
-  }
+  const handleModalClose = () => {
+    setModalState(prev => ({ ...prev, isOpen: false }));
+  };
 
   return (
     <>
       <Navbar theme="dark" />
       
+      <PaymentModal
+        isOpen={modalState.isOpen}
+        status={modalState.status}
+        message={modalState.message}
+        onClose={handleModalClose}
+      />
+
       <div className="min-h-screen bg-white pt-24 sm:pt-28 lg:pt-32">
         <div ref={containerRef} className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           
@@ -302,7 +310,6 @@ Receipt attached.
                     type="file"
                     accept="image/jpeg,image/png,image/jpg,application/pdf"
                     onChange={handleFileChange}
-                    disabled={isSubmitting}
                     className="hidden"
                     id="receipt-upload"
                   />
@@ -339,17 +346,17 @@ Receipt attached.
                 variant="primary"
                 size="lg"
                 fullWidth
-                onClick={submitPayment}
-                disabled={isSubmitting || !receipt}
+                onClick={handleSubmitPayment}
+                disabled={!receipt || modalState.isOpen}
               >
-                {isSubmitting ? 'Submitting Payment...' : 'Submit Payment'}
+                {modalState.isOpen ? 'Processing...' : 'Submit Payment'}
               </Button>
             </div>
 
             <div className="text-center">
               <button
                 onClick={() => navigate('/cart')}
-                disabled={isSubmitting}
+                disabled={modalState.isOpen}
                 className="text-sm text-black/60 hover:text-black uppercase tracking-wider transition-colors duration-300 disabled:opacity-50"
               >
                 ← Back to Cart

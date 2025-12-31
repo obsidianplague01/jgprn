@@ -1,16 +1,20 @@
+// src/components/Footer.jsx
 import { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import FormInput from './forms/FormInput';
+import { subscribeNewsletter } from '../utils/api';
+import { sanitizeEmail } from '../utils/sanitize';
+import { checkRateLimit, formRateLimiter } from '../utils/rateLimiter';
+import { logFormSubmission } from '../utils/logger';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const navigation = {
   support: [
-    { name: "Contact Information", href: "#" },
+    { name: "Contact Information", href: "/contact" },
     { name: "Help Center", href: "#" },
     { name: "Refund Policy", href: "#" },
-    { name: "Contact Information", href: "/contact" }
   ],
 };
 
@@ -26,7 +30,6 @@ function Footer({ theme = 'light' }) {
 
   const isDark = theme === 'dark';
 
-  // Theme-based colors
   const colors = {
     bg: isDark ? 'bg-gray-900' : 'bg-white',
     text: isDark ? 'text-white' : 'text-gray-900',
@@ -41,7 +44,6 @@ function Footer({ theme = 'light' }) {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Entrance animations on scroll
       gsap.from('.footer-section', {
         opacity: 0,
         y: 50,
@@ -54,7 +56,6 @@ function Footer({ theme = 'light' }) {
         }
       });
 
-      // Animated divider line
       gsap.from('.footer-divider', {
         scaleX: 0,
         duration: 1.5,
@@ -65,7 +66,6 @@ function Footer({ theme = 'light' }) {
         }
       });
 
-      // Stagger link animations
       gsap.from('.footer-link', {
         opacity: 0,
         x: -20,
@@ -78,7 +78,6 @@ function Footer({ theme = 'light' }) {
         }
       });
 
-      // Copyright text fade in
       gsap.from('.footer-copyright', {
         opacity: 0,
         y: 20,
@@ -90,7 +89,6 @@ function Footer({ theme = 'light' }) {
         }
       });
 
-      // Social icon rotation on scroll
       if (socialIconRef.current) {
         gsap.to(socialIconRef.current, {
           rotation: 360,
@@ -104,16 +102,6 @@ function Footer({ theme = 'light' }) {
     return () => ctx.revert();
   }, []);
 
-  // Button hover animations
-  const handleButtonMouseEnter = () => {
-    // Removed hover animations
-  };
-
-  const handleButtonMouseLeave = () => {
-    // Removed hover animations
-  };
-
-  // Link hover animations - fade and slight scale
   const handleLinkMouseEnter = (e) => {
     gsap.to(e.currentTarget, {
       opacity: 0.7,
@@ -132,7 +120,6 @@ function Footer({ theme = 'light' }) {
     });
   };
 
-  // Social icon hover
   const handleSocialMouseEnter = (e) => {
     gsap.to(e.currentTarget, {
       scale: 1.2,
@@ -185,14 +172,22 @@ function Footer({ theme = 'light' }) {
       return;
     }
 
+    try {
+      checkRateLimit(formRateLimiter, 'newsletter', 3);
+    } catch (rateLimitError) {
+      setError(rateLimitError.message);
+      return;
+    }
+
     setIsSubmitting(true);
     setError('');
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const sanitizedEmail = sanitizeEmail(email);
+      await subscribeNewsletter(sanitizedEmail);
 
-      // Success animation sequence
+      logFormSubmission('newsletter', true, { email: sanitizedEmail });
+
       const tl = gsap.timeline({
         onComplete: () => {
           setSubscribed(true);
@@ -232,18 +227,21 @@ function Footer({ theme = 'light' }) {
         }
       );
 
-    } catch (error) {
-      console.error('Newsletter subscription failed:', error);
-      setError('Failed to subscribe. Please try again.');
+    } catch (apiError) {
+      setError(apiError.message || 'Failed to subscribe. Please try again.');
       setIsSubmitting(false);
       
-      setTimeout(() => setError(''), 3000);
+      logFormSubmission('newsletter', false, { 
+        email, 
+        error: apiError.message 
+      });
+      
+      setTimeout(() => setError(''), 5000);
     }
   };
 
   return (
     <footer ref={footerRef} className={`${colors.bg} ${colors.text} z-50 transition-colors duration-300 relative overflow-hidden`}>
-      {/* Animated background particles for dark mode */}
       {isDark && (
         <div className="absolute inset-0 opacity-5 pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-amber-500 rounded-full blur-3xl animate-pulse" 
@@ -255,17 +253,14 @@ function Footer({ theme = 'light' }) {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 lg:pt-20 pb-8 relative z-10">
         
-        {/* Main Grid - Super large mobile/tablet spacing between sections */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-24 sm:gap-y-28 md:gap-y-32 lg:gap-16 xl:gap-20">
           
-          {/* Newsletter Section */}
           <div className="lg:col-span-7 space-y-6 relative footer-section">
             <h3 className="text-sm font-semibold uppercase tracking-[0.15em]">SIGN UP BELOW</h3>
             <p className={`text-sm ${colors.textSecondary} tracking-[0.05em] max-w-md`}>
               Get early access, exclusive products, codes and more....
             </p>
             
-            {/* Newsletter Form */}
             <div className="newsletter-form mt-4 space-y-6 max-w-lg">
               <FormInput
                 id="newsletter-email"
@@ -287,7 +282,6 @@ function Footer({ theme = 'light' }) {
                 By completing and sending your data, you agree to the Privacy policy. All data will be kept confidential. (* are required fields)
               </p>
               
-              {/* Submit Button */}
               <div className="flex gap-4 items-center pt-2 relative">
                 <button
                   ref={buttonRef}
@@ -310,7 +304,6 @@ function Footer({ theme = 'light' }) {
               </div>
             </div>
             
-            {/* Success overlay */}
             {subscribed && (
               <div className={`absolute inset-0 flex items-center justify-center ${colors.successOverlay} z-10 rounded-lg backdrop-blur-sm`}>
                 <div className="text-center success-indicator">
@@ -326,7 +319,6 @@ function Footer({ theme = 'light' }) {
             )}
           </div>
 
-          
           <div className="lg:col-span-5 space-y-6 footer-section footer-links-section mtImp">
             <h3 className="text-sm font-semibold uppercase tracking-[0.15em]">Need Help?</h3>
             <ul role="list" className="space-y-1">
@@ -348,12 +340,10 @@ function Footer({ theme = 'light' }) {
 
         <div className={`footer-divider mt-12 sm:mt-16 border-t ${colors.border} pt-8 origin-left`} />
 
-       
         <div className="sm:flex sm:items-center sm:justify-between">
           <p className={`footer-copyright text-sm ${colors.textSecondary} sm:order-1 uppercase tracking-widest`}>
             &copy; {currentYear} JGPNR.NG. All rights reserved.
           </p>
-          
           
           <div className="flex space-x-6 mt-4 sm:mt-0">
             <a 

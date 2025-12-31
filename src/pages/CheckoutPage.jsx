@@ -121,8 +121,8 @@ export default function CheckoutPage() {
                   >
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                       <div>
-                        <h3 className="text-lg sm:text-xl text-black font-light mb-1 sm:mb-2">PlayStation Ticket</h3>
-                        <p className="text-xs sm:text-sm text-black/60">
+                        <h3 className="text-lg sm:text-xl text-black font-semibold mb-1 sm:mb-2">PlayStation Ticket</h3>
+                        <p className="text-xs sm:text-sm text-black/60 font-medium">
                           ₦{item.ticketPrice.toLocaleString()} per ticket
                         </p>
                       </div>
@@ -136,21 +136,21 @@ export default function CheckoutPage() {
                       </button>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm text-black/70 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-200">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-200">
                       <div className="flex flex-col gap-2">
-                        <p><span className="font-semibold text-black">Name:</span> {item.firstName} {item.lastName}</p>
-                        <p><span className="font-semibold text-black">Email:</span> {item.email}</p>
-                        <p><span className="font-semibold text-black">Phone:</span> {item.phone}</p>
+                        <p className="text-black/90"><span className="font-semibold text-black">Name:</span> {item.firstName} {item.lastName}</p>
+                        <p className="text-black/90"><span className="font-semibold text-black">Email:</span> {item.email}</p>
+                        <p className="text-black/90"><span className="font-semibold text-black">Phone:</span> {item.phone}</p>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <p><span className="font-semibold text-black">Location:</span> {item.location}</p>
-                        <p><span className="font-semibold text-black">WhatsApp:</span> {item.whatsapp}</p>
+                        <p className="text-black/90"><span className="font-semibold text-black">Location:</span> {item.location}</p>
+                        <p className="text-black/90"><span className="font-semibold text-black">WhatsApp:</span> {item.whatsapp}</p>
                       </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6">
                       <div className="flex items-center gap-3">
-                        <span className="text-xs sm:text-sm text-black/60 uppercase tracking-wider">Quantity:</span>
+                        <span className="text-xs sm:text-sm text-black/70 uppercase tracking-wider font-medium">Quantity:</span>
                         <div className="flex items-center gap-2 sm:gap-3">
                           <button
                             onClick={() => handleUpdateQuantity(item.id, item.tickets - 1, index)}
@@ -160,7 +160,7 @@ export default function CheckoutPage() {
                           >
                             −
                           </button>
-                          <span className={`quantity-${index} text-xl sm:text-2xl text-black font-light w-10 sm:w-12 text-center`}>
+                          <span className={`quantity-${index} text-xl sm:text-2xl text-black font-semibold w-10 sm:w-12 text-center`}>
                             {item.tickets}
                           </span>
                           <button
@@ -175,8 +175,8 @@ export default function CheckoutPage() {
                       </div>
 
                       <div className="text-right">
-                        <p className="text-xs text-black/60 mb-1">Subtotal</p>
-                        <span className="text-2xl sm:text-3xl text-amber-500 font-light">
+                        <p className="text-xs text-black/60 mb-1 uppercase tracking-wide">Subtotal</p>
+                        <span className="text-2xl sm:text-3xl text-amber-500 font-semibold">
                           ₦{item.totalPrice.toLocaleString()}
                         </span>
                       </div>
@@ -189,12 +189,12 @@ export default function CheckoutPage() {
                 <div className="bg-linear-to-br from-amber-500/10 to-amber-500/5 border-2 border-amber-500/30 rounded-2xl p-6 sm:p-8 hover:border-amber-500/50 transition-all duration-300">
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
                     <div className="text-center sm:text-left">
-                      <p className="text-xs sm:text-sm text-black/60 uppercase tracking-wider mb-1">Grand Total</p>
-                      <p className="text-sm text-black/50">
+                      <p className="text-xs sm:text-sm text-black/70 uppercase tracking-wider mb-1 font-semibold">Grand Total</p>
+                      <p className="text-sm text-black/60 font-medium">
                         {cartItems.reduce((sum, item) => sum + item.tickets, 0)} ticket(s)
                       </p>
                     </div>
-                    <span className="text-3xl sm:text-4xl lg:text-5xl font-light text-amber-500">
+                    <span className="text-3xl sm:text-4xl lg:text-5xl font-bold text-amber-500">
                       ₦{grandTotal.toLocaleString()}
                     </span>
                   </div>
@@ -214,7 +214,7 @@ export default function CheckoutPage() {
                   <button
                     onClick={() => navigate('/playstation')}
                     disabled={isProcessing}
-                    className="text-sm text-black/60 hover:text-black uppercase tracking-wider transition-colors duration-300 disabled:opacity-50"
+                    className="text-sm text-black/60 hover:text-black uppercase tracking-wider transition-colors duration-300 disabled:opacity-50 font-medium"
                   >
                     ← Continue Shopping
                   </button>

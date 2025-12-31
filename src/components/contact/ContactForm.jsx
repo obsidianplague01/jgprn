@@ -1,8 +1,13 @@
+// src/components/contact/ContactForm.jsx
 import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import FormInput, { FormTextarea } from '../forms/FormInput'; // ✨ Import FormInput
+import FormInput, { FormTextarea } from '../forms/FormInput';
 import Button from '../Button';
+import { submitContactForm } from '../../utils/api';
+import { sanitizeFormData, isValidFormData } from '../../utils/sanitize';
+import { checkRateLimit, formRateLimiter } from '../../utils/rateLimiter';
+import { logFormSubmission } from '../../utils/logger';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,7 +32,6 @@ export default function ContactForm() {
     window.scrollTo(0, 0);
 
     const ctx = gsap.context(() => {
-      // Scroll-triggered reveal animation
       gsap.fromTo(
         formRef.current,
         { opacity: 0, y: 100 },
@@ -45,7 +49,6 @@ export default function ContactForm() {
         }
       );
 
-      // Stagger input fields
       gsap.fromTo(
         '.form-field',
         { opacity: 0, x: -30 },
@@ -62,7 +65,6 @@ export default function ContactForm() {
         }
       );
 
-      // Header text split animation
       gsap.fromTo(
         '.header-word',
         { opacity: 0, y: 50, rotateX: -90 },
@@ -84,7 +86,6 @@ export default function ContactForm() {
     return () => ctx.revert();
   }, []);
 
-  // Custom cursor for form area (desktop only)
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!cursorRef.current) return;
@@ -157,7 +158,6 @@ export default function ContactForm() {
       [name]: value,
     });
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -182,33 +182,35 @@ export default function ContactForm() {
       return;
     }
 
+    try {
+      checkRateLimit(formRateLimiter, 'contact', 3);
+    } catch (rateLimitError) {
+      setSubmitError(rateLimitError.message);
+      return;
+    }
+
+    const sanitized = sanitizeFormData(formData);
+    
+    if (!isValidFormData(sanitized)) {
+      setSubmitError('Invalid form data. Please check your inputs.');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      // In production, send to your backend API
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      await submitContactForm(sanitized);
 
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
+      logFormSubmission('contact', true, { email: sanitized.email });
 
-      // Disable form temporarily
       const inputs = formRef.current.querySelectorAll('input, textarea, button');
       inputs.forEach(input => input.disabled = true);
 
-      // Success animation sequence
       const tl = gsap.timeline({
         onComplete: () => {
           setSubmitted(true);
           
-          // Reset after 4 seconds
           setTimeout(() => {
             gsap.to('.success-message', {
               opacity: 0,
@@ -230,7 +232,6 @@ export default function ContactForm() {
         },
       });
 
-      // Form collapse animation
       tl.to('.form-field', {
         opacity: 0,
         x: -50,
@@ -242,7 +243,6 @@ export default function ContactForm() {
         scale: 0.95,
         duration: 0.3,
       }, '-=0.2')
-      // Success message entrance
       .fromTo(
         '.success-message',
         { opacity: 0, scale: 0.8, y: 30 },
@@ -254,7 +254,6 @@ export default function ContactForm() {
           ease: 'back.out(2)',
         }
       )
-      // Confetti-like particles
       .to('.success-particle', {
         y: -100,
         x: (i) => (i % 2 === 0 ? -50 : 50),
@@ -264,12 +263,16 @@ export default function ContactForm() {
         ease: 'power2.out',
       }, '-=0.5');
 
-    } catch (error) {
-      console.error('Contact form submission failed:', error);
-      setSubmitError('Failed to send message. Please try again.');
+    } catch (apiError) {
+      console.error('Contact form submission failed:', apiError);
+      setSubmitError(apiError.message || 'Failed to send message. Please try again.');
       setIsSubmitting(false);
 
-      // Show error animation
+      logFormSubmission('contact', false, { 
+        email: formData.email, 
+        error: apiError.message 
+      });
+
       gsap.from('.submit-error', {
         opacity: 0,
         y: -10,
@@ -307,7 +310,6 @@ export default function ContactForm() {
         </div>
 
         <div className="w-full max-w-4xl relative z-10">
-         
           <div className="text-center mb-12 sm:mb-16" style={{ perspective: '1000px' }}>
             <div className="overflow-hidden mb-4 sm:mb-6">
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-[0.2em] uppercase">
@@ -333,14 +335,12 @@ export default function ContactForm() {
 
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-8 sm:space-y-10 relative">
             
-            {/* Submit Error Message */}
             {submitError && (
               <div className="submit-error bg-red-500/10 border-2 border-red-500/50 rounded-lg p-4 text-red-600 text-sm text-center">
                 {submitError}
               </div>
             )}
 
-            {/* ✨ First Name & Last Name - Using FormInput */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
               <FormInput
                 id="firstName"
@@ -373,7 +373,6 @@ export default function ContactForm() {
               />
             </div>
 
-            {/* ✨ Email - Using FormInput with validation icon */}
             <FormInput
               id="email"
               name="email"
@@ -391,7 +390,6 @@ export default function ContactForm() {
               theme="light"
             />
 
-            {/* ✨ Message - Using FormTextarea with character count */}
             <FormTextarea
               id="message"
               name="message"
@@ -409,7 +407,6 @@ export default function ContactForm() {
               theme="light"
             />
 
-            {/* Submit Button */}
             <div className="pt-6 sm:pt-8">
               {!submitted ? (
                 <Button 
@@ -423,7 +420,6 @@ export default function ContactForm() {
                 </Button>
               ) : (
                 <div className="success-message text-center py-10 sm:py-12 relative">
-                  {/* Success particles */}
                   {[...Array(8)].map((_, i) => (
                     <div
                       key={i}
@@ -435,7 +431,6 @@ export default function ContactForm() {
                     />
                   ))}
                   
-                  {/* Success icon */}
                   <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 border-2 border-black rounded-full flex items-center justify-center">
                     <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -453,8 +448,7 @@ export default function ContactForm() {
             </div>
           </form>
 
-          {/* Bottom Decorative Line */}
-          <div className="mt-16 sm:mt-20 h-px bg-linear-to-r from-transparent via-black/20 to-transparent" />
+          <div className="mt-16 sm:mt-20 h-px bg-gradient-to-r from-transparent via-black/20 to-transparent" />
         </div>
       </section>
     </>

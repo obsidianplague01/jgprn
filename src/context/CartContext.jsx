@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const CartContext = createContext(null);
+const CART_STORAGE_KEY = 'jgpnr_cart';
 
 export const useCart = () => {
   const context = useContext(CartContext);
@@ -11,13 +12,49 @@ export const useCart = () => {
   return context;
 };
 
+const loadCartFromStorage = () => {
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    if (!stored) return [];
+    
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+    
+    return parsed.filter(item => 
+      item && 
+      item.id && 
+      typeof item.tickets === 'number' &&
+      typeof item.ticketPrice === 'number'
+    );
+  } catch (error) {
+    console.error('Failed to load cart from storage:', error);
+    return [];
+  }
+};
+
+const saveCartToStorage = (items) => {
+  try {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  } catch (error) {
+    console.error('Failed to save cart to storage:', error);
+  }
+};
+
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
+    const loadedCart = loadCartFromStorage();
+    setCartItems(loadedCart);
     setIsInitialized(true);
   }, []);
+
+  useEffect(() => {
+    if (isInitialized) {
+      saveCartToStorage(cartItems);
+    }
+  }, [cartItems, isInitialized]);
 
   const addToCart = (item) => {
     if (!item) return;
@@ -63,6 +100,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     setCartItems([]);
+    localStorage.removeItem(CART_STORAGE_KEY);
   };
 
   const cartCount = cartItems.reduce((sum, item) => sum + (item.tickets || 0), 0);
