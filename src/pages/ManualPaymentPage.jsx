@@ -5,10 +5,11 @@ import gsap from 'gsap';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Button from '../components/Button';
+import PaymentModal from '../components/PaymentModal';
 import { useCart } from '../context/CartContext';
 import { submitPayment } from '../utils/api';
 import { logPaymentEvent } from '../utils/logger';
-import PaymentModal from '../components/PaymentModal';
+
 
 
 const BANK_DETAILS = {

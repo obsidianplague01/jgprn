@@ -92,7 +92,7 @@ export default function PaymentModal({ isOpen, status, message, onClose }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
         </svg>
       ),
-      title: 'Payment Failed',
+      title: 'Submission Failed',
       borderColor: 'border-red-600',
       bgColor: 'bg-red-50',
     },
